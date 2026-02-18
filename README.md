@@ -1,2 +1,2 @@
-# ERP_frontend
+# ERP Frontend
 The frontend for the project.
