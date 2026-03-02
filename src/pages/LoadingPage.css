@@ -1,0 +1,129 @@
+/* ══════════════════════════════════════════
+   LoadingPage.css  — logo pop-in & fade
+   ══════════════════════════════════════════ */
+
+.ldp-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Ripple rings ── */
+.ldp-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(79, 112, 156, 0.2);
+  animation: ldp-ripple 3s ease-out infinite;
+}
+.ldp-ring--1 { width: 220px; height: 220px; animation-delay: 0s;    }
+.ldp-ring--2 { width: 380px; height: 380px; animation-delay: 0.6s;  }
+.ldp-ring--3 { width: 560px; height: 560px; animation-delay: 1.2s;  }
+
+@keyframes ldp-ripple {
+  0%   { opacity: 0.6; transform: scale(0.85); }
+  100% { opacity: 0;   transform: scale(1.15); }
+}
+
+/* ── Center stack ── */
+.ldp-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Logo wrap — pop-in ── */
+.ldp-logo-wrap {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background: rgba(79, 112, 156, 0.18);
+  border: 1px solid rgba(79, 112, 156, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+
+  /* Pop-in: scale from 0 → overshoot → settle */
+  animation: ldp-pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both,
+             ldp-glow 2.5s ease-in-out 0.8s infinite;
+}
+
+@keyframes ldp-pop {
+  0%   { opacity: 0; transform: scale(0.3); }
+  100% { opacity: 1; transform: scale(1);   }
+}
+
+/* Subtle glow pulse after pop */
+@keyframes ldp-glow {
+  0%, 100% { box-shadow: 0 0 0px rgba(79, 112, 156, 0);    }
+  50%       { box-shadow: 0 0 32px rgba(79, 112, 156, 0.45); }
+}
+
+.ldp-logo {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  /* Fade in slightly after wrap appears */
+  animation: ldp-logo-fade 0.4s ease 0.55s both;
+}
+
+@keyframes ldp-logo-fade {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+/* ── Name — fades up after logo ── */
+.ldp-name {
+  font-family: "DM Serif Display", serif;
+  font-size: 1.875rem;
+  font-weight: 400;
+  color: var(--bg);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.375rem;
+  animation: ldp-fade-up 0.5s ease 0.75s both;
+}
+
+/* ── Tagline ── */
+.ldp-tagline {
+  font-size: 0.8125rem;
+  color: rgba(245, 239, 231, 0.45);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2.25rem;
+  animation: ldp-fade-up 0.5s ease 0.9s both;
+}
+
+@keyframes ldp-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Dot loader ── */
+.ldp-dots {
+  display: flex;
+  gap: 7px;
+  animation: ldp-fade-up 0.4s ease 1.1s both;
+}
+
+.ldp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  animation: ldp-bounce 1.2s ease-in-out infinite;
+}
+.ldp-dot:nth-child(1) { animation-delay: 0s;    }
+.ldp-dot:nth-child(2) { animation-delay: 0.18s; }
+.ldp-dot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes ldp-bounce {
+  0%, 80%, 100% { transform: translateY(0);    opacity: 0.4; }
+  40%            { transform: translateY(-8px); opacity: 1;   }
+}
