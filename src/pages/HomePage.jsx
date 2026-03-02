@@ -18,41 +18,41 @@ import "./HomePage.css";
 
 /* ── Navigation items ── */
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Dashboard",  active: true  },
-  { icon: Users,           label: "Customers",  active: false },
-  { icon: ShoppingCart,    label: "Orders",     active: false },
-  { icon: Package,         label: "Products",   active: false },
-  { icon: BarChart2,       label: "Reports",    active: false },
-  { icon: Settings,        label: "Settings",   active: false },
+  { icon: LayoutDashboard, label: "Dashboard", active: true },
+  { icon: Users, label: "Customers", active: false },
+  { icon: ShoppingCart, label: "Orders", active: false },
+  { icon: Package, label: "Products", active: false },
+  { icon: BarChart2, label: "Reports", active: false },
+  { icon: Settings, label: "Settings", active: false },
 ];
 
 /* ── KPI data ── */
 const KPIS = [
-  { label: "Total Revenue",  value: "$84,320",  change: "+12.4%", up: true  },
-  { label: "Active Orders",  value: "1,248",    change: "+8.1%",  up: true  },
-  { label: "Total Customers",value: "5,610",    change: "+3.7%",  up: true  },
-  { label: "Pending Issues", value: "24",       change: "-5.2%",  up: false },
+  { label: "Total Revenue", value: "$84,320", change: "+12.4%", up: true },
+  { label: "Active Orders", value: "1,248", change: "+8.1%", up: true },
+  { label: "Total Customers", value: "5,610", change: "+3.7%", up: true },
+  { label: "Pending Issues", value: "24", change: "-5.2%", up: false },
 ];
 
 /* ── Recent orders ── */
 const RECENT_ORDERS = [
-  { id: "#ORD-0041", customer: "Nimal Perera",   amount: "$1,200", status: "Completed" },
-  { id: "#ORD-0042", customer: "Amara Silva",    amount: "$450",   status: "Pending"   },
-  { id: "#ORD-0043", customer: "Kasun Fernando", amount: "$3,100", status: "Processing"},
-  { id: "#ORD-0044", customer: "Dilani Mendis",  amount: "$720",   status: "Completed" },
-  { id: "#ORD-0045", customer: "Ruwan Bandara",  amount: "$990",   status: "Cancelled" },
+  { id: "#ORD-0041", customer: "Nimal Perera", amount: "$1,200", status: "Completed" },
+  { id: "#ORD-0042", customer: "Amara Silva", amount: "$450", status: "Pending" },
+  { id: "#ORD-0043", customer: "Kasun Fernando", amount: "$3,100", status: "Processing" },
+  { id: "#ORD-0044", customer: "Dilani Mendis", amount: "$720", status: "Completed" },
+  { id: "#ORD-0045", customer: "Ruwan Bandara", amount: "$990", status: "Cancelled" },
 ];
 
 const STATUS_CLASS = {
-  Completed:  "hp-badge hp-badge--success",
-  Pending:    "hp-badge hp-badge--warning",
+  Completed: "hp-badge hp-badge--success",
+  Pending: "hp-badge hp-badge--warning",
   Processing: "hp-badge hp-badge--info",
-  Cancelled:  "hp-badge hp-badge--error",
+  Cancelled: "hp-badge hp-badge--error",
 };
 
 export default function HomePage({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav]     = useState("Dashboard");
+  const [activeNav, setActiveNav] = useState("Dashboard");
 
   return (
     <div className="hp-root">
