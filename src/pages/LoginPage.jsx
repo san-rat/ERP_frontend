@@ -3,20 +3,19 @@ import { Eye, EyeOff } from "lucide-react";
 import "./LoginPage.css";
 
 export default function LoginPage({ onLogin, onRegister }) {
-  const [email, setEmail]       = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd]   = useState(false);
-  const [errors, setErrors]     = useState({});
-  const [loading, setLoading]   = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
 
   /* ── Validation ── */
   const validate = () => {
     const e = {};
-    if (!email)                        e.email = "Email is required.";
-    else if (!/\S+@\S+\.\S+/.test(email)) e.email = "Enter a valid email.";
-    if (!password)                     e.password = "Password is required.";
-    else if (password.length < 6)      e.password = "Minimum 6 characters.";
+    if (!username.trim()) e.username = "Username is required.";
+    if (!password) e.password = "Password is required.";
+    else if (password.length < 6) e.password = "Minimum 6 characters.";
     return e;
   };
 
@@ -29,20 +28,19 @@ export default function LoginPage({ onLogin, onRegister }) {
 
     setLoading(true);
     try {
-      // ── Replace this block with your real API call ──
-      // const res = await fetch("http://localhost:5000/api/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // if (!res.ok) throw new Error("Invalid credentials");
-      // const data = await res.json();
-      // onLogin({ email, token: data.accessToken, role: data.role });
-
-      // Temporary mock — remove when backend is ready
-      await new Promise((r) => setTimeout(r, 1200));
-      if (password === "wrong") throw new Error("Invalid credentials");
-      onLogin({ email, role: "Admin" });
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Invalid credentials.");
+      }
+      const data = await res.json();
+      // data = { token, role, userId, expiresAt }
+      sessionStorage.setItem("erp_token", data.token);
+      onLogin({ username, token: data.token, role: data.role });
     } catch (err) {
       setApiError(err.message || "Login failed. Please try again.");
     } finally {
@@ -102,24 +100,24 @@ export default function LoginPage({ onLogin, onRegister }) {
           )}
 
           <form onSubmit={handleSubmit} noValidate className="lp-form">
-            {/* Email */}
+            {/* Username */}
             <div className="lp-field">
-              <label htmlFor="email" className="lp-label">
-                Email address <span className="lp-required">*</span>
+              <label htmlFor="username" className="lp-label">
+                Username <span className="lp-required">*</span>
               </label>
               <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
-                placeholder="you@company.com"
-                className={`lp-input${errors.email ? " lp-input--error" : ""}`}
+                id="username"
+                type="text"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value); clearError("username"); }}
+                placeholder="e.g. admin"
+                className={`lp-input${errors.username ? " lp-input--error" : ""}`}
                 disabled={loading}
-                aria-describedby={errors.email ? "email-err" : undefined}
+                aria-describedby={errors.username ? "username-err" : undefined}
               />
-              {errors.email && (
-                <span id="email-err" className="lp-field-error">{errors.email}</span>
+              {errors.username && (
+                <span id="username-err" className="lp-field-error">{errors.username}</span>
               )}
             </div>
 
