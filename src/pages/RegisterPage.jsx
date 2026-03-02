@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { authApi } from "../api/client";
 import "./RegisterPage.css";
 
 const ROLES = ["Admin", "Manager", "Employee", "Customer"];
@@ -68,17 +69,12 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: `${form.firstName.toLowerCase()}.${form.lastName.toLowerCase()}`,
-          password: form.password,
-          role: form.role,
-        }),
+      const data = await authApi.register({
+        username: `${form.firstName.toLowerCase()}.${form.lastName.toLowerCase()}`,
+        password: form.password,
+        role: form.role,
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+      if (data.error || data.message?.toLowerCase().includes("fail")) {
         throw new Error(data.message || "Registration failed.");
       }
       setSuccess(true);
