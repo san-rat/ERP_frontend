@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { authApi } from "../api/client";
 import "./LoginPage.css";
 
 export default function LoginPage({ onLogin, onRegister }) {
@@ -28,16 +29,10 @@ export default function LoginPage({ onLogin, onRegister }) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Invalid credentials.");
+      const data = await authApi.login({ username, password });
+      if (data.error || data.message?.toLowerCase().includes("invalid")) {
+        throw new Error(data.message || "Invalid credentials.");
       }
-      const data = await res.json();
       // data = { token, role, userId, expiresAt }
       sessionStorage.setItem("erp_token", data.token);
       onLogin({ username, token: data.token, role: data.role });
