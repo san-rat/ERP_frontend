@@ -13,12 +13,12 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
     password: "",
     confirmPassword: "",
   });
-  const [showPwd, setShowPwd]         = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [errors, setErrors]           = useState({});
-  const [apiError, setApiError]       = useState("");
-  const [loading, setLoading]         = useState(false);
-  const [success, setSuccess]         = useState(false);
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   /* ── Helpers ── */
   const set = (field) => (e) => {
@@ -29,16 +29,16 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
   /* ── Validation ── */
   const validate = () => {
     const e = {};
-    if (!form.firstName.trim())   e.firstName = "First name is required.";
-    if (!form.lastName.trim())    e.lastName  = "Last name is required.";
-    if (!form.email)              e.email     = "Email is required.";
+    if (!form.firstName.trim()) e.firstName = "First name is required.";
+    if (!form.lastName.trim()) e.lastName = "Last name is required.";
+    if (!form.email) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email.";
-    if (!form.role)               e.role      = "Please select a role.";
-    if (!form.password)           e.password  = "Password is required.";
+    if (!form.role) e.role = "Please select a role.";
+    if (!form.password) e.password = "Password is required.";
     else if (form.password.length < 8) e.password = "Minimum 8 characters.";
     else if (!/[A-Z]/.test(form.password)) e.password = "Include at least one uppercase letter.";
     else if (!/[0-9]/.test(form.password)) e.password = "Include at least one number.";
-    if (!form.confirmPassword)    e.confirmPassword = "Please confirm your password.";
+    if (!form.confirmPassword) e.confirmPassword = "Please confirm your password.";
     else if (form.password !== form.confirmPassword)
       e.confirmPassword = "Passwords do not match.";
     return e;
@@ -49,9 +49,9 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
     const p = form.password;
     if (!p) return 0;
     let s = 0;
-    if (p.length >= 8)        s++;
-    if (/[A-Z]/.test(p))      s++;
-    if (/[0-9]/.test(p))      s++;
+    if (p.length >= 8) s++;
+    if (/[A-Z]/.test(p)) s++;
+    if (/[0-9]/.test(p)) s++;
     if (/[^A-Za-z0-9]/.test(p)) s++;
     return s; // 0–4
   })();
@@ -68,25 +68,19 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
 
     setLoading(true);
     try {
-      // ── Replace with real API call ──
-      // const res = await fetch("http://localhost:5000/api/auth/register", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     firstName: form.firstName,
-      //     lastName: form.lastName,
-      //     email: form.email,
-      //     role: form.role,
-      //     password: form.password,
-      //   }),
-      // });
-      // if (!res.ok) {
-      //   const data = await res.json();
-      //   throw new Error(data.message || "Registration failed.");
-      // }
-
-      // Temporary mock — remove when backend is ready
-      await new Promise((r) => setTimeout(r, 1400));
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: `${form.firstName.toLowerCase()}.${form.lastName.toLowerCase()}`,
+          password: form.password,
+          role: form.role,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Registration failed.");
+      }
       setSuccess(true);
       setTimeout(() => onRegistered?.(), 1800);
     } catch (err) {
@@ -256,7 +250,7 @@ export default function RegisterPage({ onRegistered, onBackToLogin }) {
               {form.password && (
                 <div className="rp-strength">
                   <div className="rp-strength-bars">
-                    {[1,2,3,4].map((n) => (
+                    {[1, 2, 3, 4].map((n) => (
                       <span key={n} className={`rp-strength-bar${strength >= n ? ` ${strengthClass}` : ""}`} />
                     ))}
                   </div>
