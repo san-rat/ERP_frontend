@@ -11,7 +11,7 @@ export default function LoadingPage() {
       <div className="ldp-center">
         {/* Logo pop-in with glow */}
         <div className="ldp-logo-wrap">
-          <img src="/logo/dark_version_logo.png" alt="InsightERP" className="ldp-logo" />
+          <img src="/logo/wlogo.png" alt="InsightERP" className="ldp-logo" />
         </div>
 
         {/* Name fades in after logo */}

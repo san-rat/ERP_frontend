@@ -51,7 +51,7 @@ export default function LoginPage({ onLogin, onRegister }) {
       {/* ── Left brand panel ── */}
       <div className="lp-brand">
         <div className="lp-brand-top">
-          <img src="/logo/logo.png" alt="InsightERP logo" className="lp-brand-logo" />
+          <img src="/logo/wlogo.png" alt="InsightERP logo" className="lp-brand-logo" />
           <h1 className="lp-brand-name">InsightERP</h1>
           <p className="lp-brand-tagline">
             Enterprise Resource Planning — simplified for modern teams.
