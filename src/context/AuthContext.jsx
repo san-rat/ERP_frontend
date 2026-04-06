@@ -33,8 +33,11 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem("erp_user", JSON.stringify(userData));
     setUser(userData);
     
-    if (userData.role === "Admin" || userData.role === "ADMIN") {
+    const role = userData.role?.toUpperCase();
+    if (role === "ADMIN") {
       navigate("/admin");
+    } else if (role === "EMPLOYEE") {
+      navigate("/employee/overview");
     } else {
       navigate("/");
     }

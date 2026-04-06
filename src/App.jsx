@@ -7,6 +7,12 @@ import AdminRouteGuard from "./components/auth/AdminRouteGuard.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
 import AdminUsersPage from "./pages/admin/AdminUsersPage.jsx";
+import EmployeeRouteGuard from "./components/auth/EmployeeRouteGuard.jsx";
+import EmployeeLayout from "./layouts/EmployeeLayout.jsx";
+import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
+import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
+import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
+import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
 
 const RootLayout = () => {
   return (
@@ -35,7 +41,12 @@ const HomeWrapper = () => {
 const LoginWrapper = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
-  if (user) return <Navigate to={user.role?.toUpperCase() === "ADMIN" ? "/admin" : "/"} replace />;
+  if (user) {
+    const role = user.role?.toUpperCase();
+    if (role === "ADMIN") return <Navigate to="/admin" replace />;
+    if (role === "EMPLOYEE") return <Navigate to="/employee/overview" replace />;
+    return <Navigate to="/" replace />;
+  }
   return <LoginPage onLogin={login} onRegister={() => navigate("/register")} />;
 };
 
@@ -60,6 +71,21 @@ const router = createBrowserRouter([
             children: [
               { index: true, element: <AdminDashboardPage /> },
               { path: "users", element: <AdminUsersPage /> }
+            ]
+          }
+        ]
+      },
+      {
+        path: "/employee",
+        element: <EmployeeRouteGuard />,
+        children: [
+          {
+            element: <EmployeeLayout />,
+            children: [
+              { path: "overview", element: <EmployeeOverviewPage /> },
+              { path: "orders", element: <EmployeeOrdersPage /> },
+              { path: "products", element: <EmployeeProductsPage /> },
+              { path: "inventory", element: <EmployeeInventoryPage /> }
             ]
           }
         ]
