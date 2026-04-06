@@ -6,6 +6,25 @@
  */
 const API = import.meta.env.VITE_API_BASE_URL;
 
+const parseResponse = async (response) => {
+    const text = await response.text();
+    let data = null;
+
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = { message: text };
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(data?.message || `Request failed with status ${response.status}.`);
+    }
+
+    return data;
+};
+
 /* ── Auth endpoints ── */
 export const authApi = {
     login: (credentials) =>
@@ -13,14 +32,14 @@ export const authApi = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(credentials),
-        }).then((r) => r.json()),
+        }).then(parseResponse),
 
     register: (data) =>
         fetch(`${API}/api/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-        }).then((r) => r.json()),
+        }).then(parseResponse),
 };
 
 /* ── Generic authenticated fetch helper ── */

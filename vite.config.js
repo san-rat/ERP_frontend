@@ -6,10 +6,15 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',   // Your API Gateway
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.js'
+  }
 })
