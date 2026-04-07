@@ -423,7 +423,7 @@
   .hp-hamburger       { display: none; }        /* hide hamburger */
   .hp-topbar-brand    { display: none; }        /* brand in sidebar instead */
   .hp-user-info       { display: flex; }        /* show email + role */
-  .hp-kpi-grid        { grid-template-columns: repeat(4, 1fr); }
+  .hp-kpi-grid        { grid-template-columns: repeat(3, 1fr); }
   .hp-content         { padding: 2rem 2.5rem; }
 }
 

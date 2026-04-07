@@ -206,34 +206,43 @@ export default function HomePage({ user, onLogout }) {
 
           {/* KPI cards */}
           <div className="hp-kpi-grid">
-            <div className="hp-kpi-card">
-              <p className="hp-kpi-label">Total Revenue</p>
-              <p className="hp-kpi-value">
-                {kpiData.loading ? "..." : `$${kpiData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-              </p>
-              <span className="hp-kpi-change hp-kpi-change--up">
-                <TrendingUp size={13} /> Real-time data
-              </span>
+            {/* Total Revenue Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Total Revenue</h2>
+              </div>
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : `$${kpiData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Real-time data</span>
+              </div>
             </div>
 
-            <div className="hp-kpi-card">
-              <p className="hp-kpi-label">Active Orders</p>
-              <p className="hp-kpi-value">
-                {kpiData.loading ? "..." : kpiData.activeOrders.toLocaleString()}
-              </p>
-              <span className="hp-kpi-change hp-kpi-change--up">
-                <TrendingUp size={13} /> Current queue
-              </span>
+            {/* Active Orders Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Active Orders</h2>
+              </div>
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : kpiData.activeOrders.toLocaleString()}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Current queue</span>
+              </div>
             </div>
 
-            <div className="hp-kpi-card">
-              <p className="hp-kpi-label">Total Customers</p>
-              <p className="hp-kpi-value">
-                {kpiData.loading ? "..." : kpiData.totalCustomers.toLocaleString()}
-              </p>
-              <span className="hp-kpi-change hp-kpi-change--up">
-                <TrendingUp size={13} /> Unique clients
-              </span>
+            {/* Total Customers Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Total Customers</h2>
+              </div>
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : kpiData.totalCustomers.toLocaleString()}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Unique clients</span>
+              </div>
             </div>
           </div>
 
