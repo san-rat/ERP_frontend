@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -13,8 +13,9 @@ import {
   Bell,
   TrendingUp,
   TrendingDown,
-  ChevronRight,
 } from "lucide-react";
+import { forecastingClient } from "../api/forecastingClient";
+import { ordersClient } from "../api/ordersClient";
 import "./HomePage.css";
 
 /* ── Navigation items ── */
@@ -22,14 +23,6 @@ const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
   { icon: BarChart2, label: "Product Insights", active: false },
   { icon: Users, label: "Customer Insights", active: false },
-];
-
-/* ── KPI data ── */
-const KPIS = [
-  { label: "Total Revenue", value: "$84,320", change: "+12.4%", up: true },
-  { label: "Active Orders", value: "1,248", change: "+8.1%", up: true },
-  { label: "Total Customers", value: "5,610", change: "+3.7%", up: true },
-  { label: "Pending Issues", value: "24", change: "-5.2%", up: false },
 ];
 
 /* ── Recent orders ── */
@@ -52,12 +45,71 @@ export default function HomePage({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Dashboard");
   const navigate = useNavigate();
+  
+  // KPI State
+  const [kpiData, setKpiData] = useState({
+    totalRevenue: 0,
+    activeOrders: 0,
+    totalCustomers: 0,
+    loading: true
+  });
+
+  useEffect(() => {
+    async function fetchKpis() {
+      try {
+        const results = await Promise.allSettled([
+          forecastingClient.getProductMetrics(),
+          ordersClient.getAll(),
+          ordersClient.getSummary()
+        ]);
+
+        const [forecastRes, ordersRes, summaryRes] = results;
+
+        let revenue = 0;
+        let customers = 0;
+        let active = 0;
+
+        // Calculate Revenue from Forecasting
+        if (forecastRes.status === 'fulfilled') {
+          const products = forecastRes.value?.products || forecastRes.value || [];
+          revenue = products.reduce((sum, p) => sum + (p.totalRevenue || 0), 0);
+        }
+
+        // Calculate Customers from Orders
+        if (ordersRes.status === 'fulfilled') {
+          const orders = ordersRes.value || [];
+          customers = new Set(orders.map(o => o.customerId)).size;
+        }
+
+        // Calculate Active Orders from Summary
+        if (summaryRes.status === 'fulfilled') {
+          const summary = summaryRes.value || {};
+          active = (summary.pending || 0) + (summary.processing || 0) + (summary.shipped || 0);
+        }
+
+        setKpiData({
+          totalRevenue: revenue,
+          activeOrders: active,
+          totalCustomers: customers,
+          loading: false
+        });
+      } catch (err) {
+        console.error("Dashboard KPI fetch error:", err);
+        setKpiData(prev => ({ ...prev, loading: false }));
+      }
+    }
+
+    fetchKpis();
+  }, []);
 
   const handleNavClick = (label) => {
     setActiveNav(label);
     setSidebarOpen(false);
     if (label === "Product Insights") {
       navigate("/analytics");
+    }
+    if (label === "Customer Insights") {
+      navigate("/customer-insights");
     }
   };
 
@@ -148,24 +200,41 @@ export default function HomePage({ user, onLogout }) {
             </div>
             <div className="hp-page-actions">
               <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
-              <button className="hp-btn-primary">
-                New Order <ChevronRight size={16} />
-              </button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>Customer Insights</button>
             </div>
           </div>
 
           {/* KPI cards */}
           <div className="hp-kpi-grid">
-            {KPIS.map((k) => (
-              <div key={k.label} className="hp-kpi-card">
-                <p className="hp-kpi-label">{k.label}</p>
-                <p className="hp-kpi-value">{k.value}</p>
-                <span className={`hp-kpi-change${k.up ? " hp-kpi-change--up" : " hp-kpi-change--down"}`}>
-                  {k.up ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                  {k.change} vs last month
-                </span>
-              </div>
-            ))}
+            <div className="hp-kpi-card">
+              <p className="hp-kpi-label">Total Revenue</p>
+              <p className="hp-kpi-value">
+                {kpiData.loading ? "..." : `$${kpiData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+              </p>
+              <span className="hp-kpi-change hp-kpi-change--up">
+                <TrendingUp size={13} /> Real-time data
+              </span>
+            </div>
+
+            <div className="hp-kpi-card">
+              <p className="hp-kpi-label">Active Orders</p>
+              <p className="hp-kpi-value">
+                {kpiData.loading ? "..." : kpiData.activeOrders.toLocaleString()}
+              </p>
+              <span className="hp-kpi-change hp-kpi-change--up">
+                <TrendingUp size={13} /> Current queue
+              </span>
+            </div>
+
+            <div className="hp-kpi-card">
+              <p className="hp-kpi-label">Total Customers</p>
+              <p className="hp-kpi-value">
+                {kpiData.loading ? "..." : kpiData.totalCustomers.toLocaleString()}
+              </p>
+              <span className="hp-kpi-change hp-kpi-change--up">
+                <TrendingUp size={13} /> Unique clients
+              </span>
+            </div>
           </div>
 
           {/* Recent orders table */}

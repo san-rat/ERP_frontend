@@ -35,23 +35,25 @@ export default function AnalyticsPage() {
 
         // Handle Forecasting Data
         if (forecastRes.status === 'fulfilled') {
-          setProducts(forecastRes.value?.products || []);
+          // Forecasting API returns { products: [...], count: X }
+          const data = forecastRes.value;
+          setProducts(data?.products || data || []);
         } else {
           setForecastError(forecastRes.reason?.status === 403 
             ? "Permission denied for product metrics." 
             : "Forecasting service unreachable.");
         }
 
-        // Handle Orders Data (Independently)
+        // Handle Orders Data (apiUtils usually unwraps the .data envelope)
         if (ordersRes.status === 'fulfilled') {
-          const orders = ordersRes.value?.data || [];
+          const orders = ordersRes.value || [];
           setCustomerCount(new Set(orders.map(o => o.customerId)).size);
         } else {
           setOrderError(true);
         }
 
         if (summaryRes.status === 'fulfilled') {
-          setOrderSummary(summaryRes.value?.data || null);
+          setOrderSummary(summaryRes.value || null);
         } else {
           setOrderError(true);
         }
