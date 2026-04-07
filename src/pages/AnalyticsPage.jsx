@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import { forecastingClient } from "../api/forecastingClient";
 import { ordersClient } from "../api/ordersClient";
 import { useAuth } from "../context/AuthContext";
@@ -106,11 +106,13 @@ export default function AnalyticsPage() {
     <div className="analytics-root">
       <div className="analytics-panel">
         <div className="analytics-header">
+          <button className="analytics-back-btn" onClick={() => navigate("/")}>
+            <ArrowLeft size={18} /> Back to Dashboard
+          </button>
           <div>
             <h1>Analytics</h1>
             <p>Track business performance, revenue trends, and key metrics in one place.</p>
           </div>
-          <button className="analytics-btn-secondary" onClick={() => navigate("/")}>Back to Dashboard</button>
         </div>
 
         <div className="analytics-user-banner">

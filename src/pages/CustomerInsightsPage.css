@@ -104,9 +104,29 @@
   width: 100%;
 }
 
-.cip-table-scroll { overflow-x: auto; }
+.cip-table-scroll { 
+  overflow-x: auto; 
+  max-height: 600px;
+  overflow-y: auto;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
 .cip-table { width: 100%; border-collapse: collapse; text-align: left; }
-.cip-table th { padding: 1rem 1.5rem; background: #f8fafc; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--ink-10); }
+
+.cip-table th { 
+  padding: 1rem 1.5rem; 
+  background: #f8fafc; 
+  font-size: 0.75rem; 
+  font-weight: 700; 
+  text-transform: uppercase; 
+  color: var(--ink-60); 
+  border-bottom: 1px solid var(--ink-10); 
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .cip-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--ink-10); font-size: 0.9rem; }
 .cip-td-mono { font-family: monospace; font-size: 0.8rem; color: var(--ink-60); }
 .cip-td-bold { font-weight: 600; }
@@ -116,3 +136,63 @@
 .cip-badge--info    { background: #eff6ff; color: #1e40af; }
 .cip-badge--error   { background: #fef2f2; color: #991b1b; }
 .cip-empty, .cip-loading { padding: 4rem; text-align: center; color: var(--ink-60); }
+
+.cip-error-banner {
+  background: var(--error-bg);
+  color: var(--error);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cip-inline-link {
+  background: none;
+  border: none;
+  color: var(--error);
+  text-decoration: underline;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cip-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-top: 1px solid var(--ink-10);
+}
+
+.cip-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--ink-10);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cip-page-btn:hover:not(:disabled) {
+  background: var(--ink-10);
+}
+
+.cip-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cip-page-numbers {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-60);
+}
