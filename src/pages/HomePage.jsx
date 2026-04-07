@@ -25,20 +25,14 @@ const NAV_ITEMS = [
   { icon: Users, label: "Customer Insights", active: false },
 ];
 
-/* ── Recent orders ── */
-const RECENT_ORDERS = [
-  { id: "#ORD-0041", customer: "Nimal Perera", amount: "$1,200", status: "Completed" },
-  { id: "#ORD-0042", customer: "Amara Silva", amount: "$450", status: "Pending" },
-  { id: "#ORD-0043", customer: "Kasun Fernando", amount: "$3,100", status: "Processing" },
-  { id: "#ORD-0044", customer: "Dilani Mendis", amount: "$720", status: "Completed" },
-  { id: "#ORD-0045", customer: "Ruwan Bandara", amount: "$990", status: "Cancelled" },
-];
-
 const STATUS_CLASS = {
-  Completed: "hp-badge hp-badge--success",
-  Pending: "hp-badge hp-badge--warning",
-  Processing: "hp-badge hp-badge--info",
-  Cancelled: "hp-badge hp-badge--error",
+  DELIVERED: "hp-badge hp-badge--success",
+  COMPLETED: "hp-badge hp-badge--success",
+  PENDING: "hp-badge hp-badge--warning",
+  CREATED: "hp-badge hp-badge--warning",
+  PROCESSING: "hp-badge hp-badge--info",
+  SHIPPED: "hp-badge hp-badge--info",
+  CANCELLED: "hp-badge hp-badge--error",
 };
 
 export default function HomePage({ user, onLogout }) {
@@ -51,6 +45,7 @@ export default function HomePage({ user, onLogout }) {
     totalRevenue: 0,
     activeOrders: 0,
     totalCustomers: 0,
+    orders: [],
     loading: true
   });
 
@@ -68,6 +63,7 @@ export default function HomePage({ user, onLogout }) {
         let revenue = 0;
         let customers = 0;
         let active = 0;
+        let orders = [];
 
         // Calculate Revenue from Forecasting
         if (forecastRes.status === 'fulfilled') {
@@ -77,7 +73,7 @@ export default function HomePage({ user, onLogout }) {
 
         // Calculate Customers from Orders
         if (ordersRes.status === 'fulfilled') {
-          const orders = ordersRes.value || [];
+          orders = ordersRes.value || [];
           customers = new Set(orders.map(o => o.customerId)).size;
         }
 
@@ -91,6 +87,7 @@ export default function HomePage({ user, onLogout }) {
           totalRevenue: revenue,
           activeOrders: active,
           totalCustomers: customers,
+          orders: orders,
           loading: false
         });
       } catch (err) {
@@ -112,6 +109,11 @@ export default function HomePage({ user, onLogout }) {
       navigate("/customer-insights");
     }
   };
+
+  // Get the last 5 orders
+  const recentOrders = [...kpiData.orders]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return (
     <div className="hp-root">
@@ -250,7 +252,7 @@ export default function HomePage({ user, onLogout }) {
           <div className="hp-section-card">
             <div className="hp-section-header">
               <h2 className="hp-section-title">Recent Orders</h2>
-              <button className="hp-btn-secondary">View all</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>View all</button>
             </div>
 
             <div className="hp-table-wrap">
@@ -264,13 +266,13 @@ export default function HomePage({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {RECENT_ORDERS.map((row) => (
+                  {recentOrders.map((row) => (
                     <tr key={row.id}>
-                      <td className="hp-td-mono">{row.id}</td>
-                      <td>{row.customer}</td>
-                      <td>{row.amount}</td>
+                      <td className="hp-td-mono">{row.externalOrderId || row.id}</td>
+                      <td>{row.customerId}</td>
+                      <td>${Number(row.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                       <td>
-                        <span className={STATUS_CLASS[row.status]}>
+                        <span className={STATUS_CLASS[row.status?.toUpperCase()] || "hp-badge"}>
                           {row.status}
                         </span>
                       </td>
@@ -278,6 +280,11 @@ export default function HomePage({ user, onLogout }) {
                   ))}
                 </tbody>
               </table>
+              {recentOrders.length === 0 && !kpiData.loading && (
+                <div style={{ padding: '2rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--ink-60)' }}>
+                  No recent orders found.
+                </div>
+              )}
             </div>
           </div>
         </main>

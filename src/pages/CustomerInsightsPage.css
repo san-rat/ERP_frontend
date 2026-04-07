@@ -1,0 +1,118 @@
+.cip-root {
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.cip-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.cip-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  padding: 0;
+  font-family: inherit;
+}
+
+.cip-header h1 {
+  font-family: "DM Serif Display", serif;
+  margin: 0;
+  font-size: 2.25rem;
+}
+
+.cip-header p {
+  color: var(--ink-60);
+  margin: 0.5rem 0 2rem;
+}
+
+.cip-stats-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cip-stat-card {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(33,53,85,0.08);
+  box-shadow: 0 1px 3px rgba(33,53,85,0.08);
+}
+
+.cip-stat-card label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-30);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.cip-stat-card h3 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.cip-table-card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid rgba(33,53,85,0.08);
+  box-shadow: 0 1px 3px rgba(33,53,85,0.08);
+  overflow: hidden;
+}
+
+.cip-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--ink-10);
+}
+
+.cip-table-header h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.cip-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid var(--ink-10);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.cip-search-wrap input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.cip-table-scroll { overflow-x: auto; }
+.cip-table { width: 100%; border-collapse: collapse; text-align: left; }
+.cip-table th { padding: 1rem 1.5rem; background: #f8fafc; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--ink-10); }
+.cip-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--ink-10); font-size: 0.9rem; }
+.cip-td-mono { font-family: monospace; font-size: 0.8rem; color: var(--ink-60); }
+.cip-td-bold { font-weight: 600; }
+.cip-badge { padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+.cip-badge--success { background: #ecfdf5; color: #065f46; }
+.cip-badge--warning { background: #fff7ed; color: #9a3412; }
+.cip-badge--info    { background: #eff6ff; color: #1e40af; }
+.cip-badge--error   { background: #fef2f2; color: #991b1b; }
+.cip-empty, .cip-loading { padding: 4rem; text-align: center; color: var(--ink-60); }
