@@ -95,6 +95,123 @@
   font-size: 0.95rem;
 }
 
+/* ── Enhanced Table Styles ── */
+.analytics-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.analytics-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.analytics-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-30);
+}
+
+.analytics-search-input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--ink-30);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.analytics-search-input:focus {
+  border-color: var(--primary);
+}
+
+.analytics-table-scroll {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(33,53,85,0.1);
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.analytics-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 2px solid rgba(33,53,85,0.05);
+  white-space: nowrap;
+}
+
+.analytics-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.analytics-table th.sortable:hover {
+  background: #f1f5f9;
+}
+
+.analytics-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(33,53,85,0.05);
+  vertical-align: middle;
+}
+
+.analytics-td-main {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.analytics-td-bold {
+  font-weight: 600;
+}
+
+.analytics-td-mono {
+  font-family: monospace;
+  color: var(--ink-60);
+  font-size: 0.85rem;
+}
+
+.analytics-td-center {
+  text-align: center;
+}
+
+.analytics-volatility-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.analytics-volatility-tag.low {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.analytics-volatility-tag.high {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.analytics-empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--ink-30);
+  font-style: italic;
+}
+
 @media (max-width: 960px) {
   .analytics-grid {
     grid-template-columns: 1fr;
