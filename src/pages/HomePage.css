@@ -242,6 +242,13 @@
   gap: 1rem;
 }
 
+.hp-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .hp-page-title {
   font-family: "DM Serif Display", serif;
   font-size: 1.75rem;

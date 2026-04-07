@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -53,6 +54,15 @@ const STATUS_CLASS = {
 export default function HomePage({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Dashboard");
+  const navigate = useNavigate();
+
+  const handleNavClick = (label) => {
+    setActiveNav(label);
+    setSidebarOpen(false);
+    if (label === "Reports") {
+      navigate("/analytics");
+    }
+  };
 
   return (
     <div className="hp-root">
@@ -82,7 +92,7 @@ export default function HomePage({ user, onLogout }) {
             <button
               key={label}
               className={`hp-nav-item${activeNav === label ? " hp-nav-item--active" : ""}`}
-              onClick={() => { setActiveNav(label); setSidebarOpen(false); }}
+              onClick={() => handleNavClick(label)}
             >
               <Icon size={18} strokeWidth={1.75} />
               <span>{label}</span>
@@ -139,9 +149,12 @@ export default function HomePage({ user, onLogout }) {
               <h1 className="hp-page-title">Dashboard</h1>
               <p className="hp-page-sub">Welcome back, {user?.email?.split("@")[0] ?? "User"}</p>
             </div>
-            <button className="hp-btn-primary">
-              New Order <ChevronRight size={16} />
-            </button>
+            <div className="hp-page-actions">
+              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Reports</button>
+              <button className="hp-btn-primary">
+                New Order <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
 
           {/* KPI cards */}

@@ -13,6 +13,7 @@ import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
 import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
 import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
+import AnalyticsPage from "./pages/AnalyticsPage.jsx";
 
 const RootLayout = () => {
   return (
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: "/", element: <HomeWrapper /> },
+      { path: "/analytics", element: <ProtectedRoute><AnalyticsPage /></ProtectedRoute> },
       { path: "/login", element: <LoginWrapper /> },
       { path: "/register", element: <RegisterWrapper /> },
       {
