@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, ArrowUp, ArrowDown, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Search } from "lucide-react";
 import { forecastingClient } from "../api/forecastingClient";
+import { ordersClient } from "../api/ordersClient";
 import { useAuth } from "../context/AuthContext";
 import "./AnalyticsPage.css";
 
@@ -9,32 +10,64 @@ export default function AnalyticsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
+  const [orderSummary, setOrderSummary] = useState(null);
+  const [customerCount, setCustomerCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState({ message: null, status: null });
+  const [forecastError, setForecastError] = useState(null);
+  const [orderError, setOrderError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "totalRevenue", direction: "desc" });
 
   useEffect(() => {
-    async function fetchForecastingData() {
+    async function fetchDashboardData() {
+      setLoading(true);
+      setForecastError(null);
+      setOrderError(false);
+
       try {
-        const result = await forecastingClient.getProductMetrics();
-        setProducts(result?.products || []);
+        const results = await Promise.allSettled([
+          forecastingClient.getProductMetrics(),
+          ordersClient.getAll(),
+          ordersClient.getSummary()
+        ]);
+
+        const [forecastRes, ordersRes, summaryRes] = results;
+
+        // Handle Forecasting Data
+        if (forecastRes.status === 'fulfilled') {
+          setProducts(forecastRes.value?.products || []);
+        } else {
+          setForecastError(forecastRes.reason?.status === 403 
+            ? "Permission denied for product metrics." 
+            : "Forecasting service unreachable.");
+        }
+
+        // Handle Orders Data (Independently)
+        if (ordersRes.status === 'fulfilled') {
+          const orders = ordersRes.value?.data || [];
+          setCustomerCount(new Set(orders.map(o => o.customerId)).size);
+        } else {
+          setOrderError(true);
+        }
+
+        if (summaryRes.status === 'fulfilled') {
+          setOrderSummary(summaryRes.value?.data || null);
+        } else {
+          setOrderError(true);
+        }
+
       } catch (err) {
-        // Check if it's a permission error (403)
-        setError({ 
-          message: err.status === 403 ? "You do not have permission to view forecasting data." : "Could not load product metrics.",
-          status: err.status 
-        });
+        setForecastError("An unexpected error occurred.");
       } finally {
         setLoading(false);
       }
     }
-    fetchForecastingData();
+    fetchDashboardData();
   }, []);
 
   // Calculated Metrics from Forecasting Data
   const totalRevenue = products.reduce((sum, p) => sum + (p.totalRevenue || 0), 0);
-  const totalOrders = products.reduce((sum, p) => sum + (p.orderCount || 0), 0);
+  const activeOrders = (orderSummary?.pending || 0) + (orderSummary?.processing || 0) + (orderSummary?.shipped || 0);
 
   // Sorting and Filtering Logic
   const requestSort = (key) => {
@@ -88,17 +121,26 @@ export default function AnalyticsPage() {
         <div className="analytics-grid">
           <section className="analytics-card">
             <h2>Total Revenue</h2>
-            <p className="analytics-stat">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-            <p className="analytics-note">Aggregated revenue from {products.length} monitored products.</p>
+            {forecastError ? (
+              <p className="analytics-error-sm">{forecastError}</p>
+            ) : (
+              <>
+                <p className="analytics-stat">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="analytics-note">Aggregated revenue from product metrics.</p>
+              </>
+            )}
           </section>
+
           <section className="analytics-card">
-            <h2>Order Count</h2>
-            <p className="analytics-stat">{totalOrders.toLocaleString()}</p>
-            <p className="analytics-note">Total transaction volume for tracked items.</p>
+            <h2>Active Orders</h2>
+            <p className="analytics-stat">{orderError ? "N/A" : activeOrders.toLocaleString()}</p>
+            <p className="analytics-note">{orderError ? "Order service unreachable." : "Total orders pending, processing, or shipped."}</p>
           </section>
-          <section className="analytics-card analytics-chart-card">
-            <h2>Performance Snapshot</h2>
-            <div className="analytics-chart-placeholder">Chart preview</div>
+
+          <section className="analytics-card">
+            <h2>Total Customers</h2>
+            <p className="analytics-stat">{orderError ? "N/A" : customerCount.toLocaleString()}</p>
+            <p className="analytics-note">{orderError ? "Order service unreachable." : "Unique customers found in system."}</p>
           </section>
 
           <section className="analytics-card analytics-full-width">
@@ -118,9 +160,9 @@ export default function AnalyticsPage() {
 
             {loading ? (
               <p className="analytics-loading">Fetching forecasting data...</p>
-            ) : error.message ? (
+            ) : forecastError ? (
               <div className="analytics-error-state">
-                <p className="analytics-error-text">{error.message}</p>
+                <p className="analytics-error-text">{forecastError}</p>
               </div>
             ) : (
               <div className="analytics-table-scroll">
@@ -132,32 +174,20 @@ export default function AnalyticsPage() {
                       <th onClick={() => requestSort("totalRevenue")} className="sortable">Revenue</th>
                       <th onClick={() => requestSort("totalUnitsSold")} className="sortable">Units Sold</th>
                       <th onClick={() => requestSort("avgUnitPrice")} className="sortable">Avg. Price</th>
-                      <th onClick={() => requestSort("volatility")} className="sortable">Volatility</th>
-                      <th>Trend</th>
                     </tr>
                   </thead>
                   <tbody>
                     {processedProducts.map((product) => (
                       <tr key={product.productId}>
-                        <td className="analytics-td-main">{product.productName}</td>
+                        <td className="analytics-td-main">
+                          <Link to={`/analytics/${product.productId}`} className="analytics-product-link">
+                            {product.productName}
+                          </Link>
+                        </td>
                         <td className="analytics-td-mono">{product.sku}</td>
                         <td className="analytics-td-bold">${Number(product.totalRevenue).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                         <td className="analytics-td-center">{product.totalUnitsSold}</td>
                         <td>${Number(product.avgUnitPrice).toFixed(2)}</td>
-                        <td>
-                          <span className={`analytics-volatility-tag ${product.volatility > 1 ? 'high' : 'low'}`}>
-                            {(product.volatility * 100).toFixed(1)}%
-                          </span>
-                        </td>
-                        <td className="analytics-td-center">
-                          {product.trendDirection > 0 ? (
-                            <TrendingUp size={18} className="text-success" />
-                          ) : product.trendDirection < 0 ? (
-                            <TrendingDown size={18} className="text-error" />
-                          ) : (
-                            <Minus size={18} className="text-muted" />
-                          )}
-                        </td>
                       </tr>
                     ))}
                   </tbody>

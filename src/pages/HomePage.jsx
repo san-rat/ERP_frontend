@@ -20,11 +20,8 @@ import "./HomePage.css";
 /* ── Navigation items ── */
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Users, label: "Customers", active: false },
-  { icon: ShoppingCart, label: "Orders", active: false },
-  { icon: Package, label: "Products", active: false },
-  { icon: BarChart2, label: "Reports", active: false },
-  { icon: Settings, label: "Settings", active: false },
+  { icon: BarChart2, label: "Product Insights", active: false },
+  { icon: Users, label: "Customer Insights", active: false },
 ];
 
 /* ── KPI data ── */
@@ -59,7 +56,7 @@ export default function HomePage({ user, onLogout }) {
   const handleNavClick = (label) => {
     setActiveNav(label);
     setSidebarOpen(false);
-    if (label === "Reports") {
+    if (label === "Product Insights") {
       navigate("/analytics");
     }
   };
@@ -150,7 +147,7 @@ export default function HomePage({ user, onLogout }) {
               <p className="hp-page-sub">Welcome back, {user?.email?.split("@")[0] ?? "User"}</p>
             </div>
             <div className="hp-page-actions">
-              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Reports</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
               <button className="hp-btn-primary">
                 New Order <ChevronRight size={16} />
               </button>
