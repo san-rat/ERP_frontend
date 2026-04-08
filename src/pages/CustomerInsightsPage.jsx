@@ -145,7 +145,6 @@ export default function CustomerInsightsPage() {
               <thead>
                 <tr>
                   <th>Customer ID</th>
-                  <th>Risk Status</th>
                   <th>Churn Probability</th>
                   <th>Model Version</th>
                   <th>Last Assessment</th>
@@ -157,11 +156,6 @@ export default function CustomerInsightsPage() {
                   return (
                     <tr key={id}>
                       <td className="cip-td-mono">{id}</td>
-                      <td>
-                        <span className={`cip-badge ${CHURN_STATUS_CLASS[pred?.churnRiskLabel] || "cip-badge--info"}`}>
-                          {pred?.churnRiskLabel || "NOT ANALYZED"}
-                        </span>
-                      </td>
                       <td className="cip-td-bold">
                         {pred ? `${(pred.churnProbability * 100).toFixed(1)}%` : "--"}
                       </td>
