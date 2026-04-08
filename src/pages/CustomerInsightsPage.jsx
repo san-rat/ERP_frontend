@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ArrowLeft, ChevronLeft, ChevronRight, BrainCircuit, RefreshCw } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { ordersClient } from "../api/ordersClient";
 import { mlClient } from "../api/mlClient";
 import { useAuth } from "../context/AuthContext";
@@ -86,6 +87,26 @@ export default function CustomerInsightsPage() {
     }
   };
 
+  // Risk Summary Calculations
+  const riskStats = useMemo(() => {
+    const counts = { low: 0, medium: 0, high: 0 };
+    Object.values(churnPredictions).forEach(pred => {
+      const p = pred.churnProbability;
+      if (p < 0.5) counts.low++;
+      else if (p === 0.5) counts.medium++;
+      else counts.high++;
+    });
+    return counts;
+  }, [churnPredictions]);
+
+  const pieData = useMemo(() => [
+    { name: 'Low Risk', value: riskStats.low, color: '#2e7d52' },
+    { name: 'Medium Risk', value: riskStats.medium, color: '#9a6a00' },
+    { name: 'High Risk', value: riskStats.high, color: '#c0392b' },
+  ].filter(d => d.value > 0 || Object.keys(churnPredictions).length === 0), [riskStats, churnPredictions]);
+
+  const hasPredictions = Object.keys(churnPredictions).length > 0;
+
   // Pagination Logic
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const paginatedOrders = useMemo(() => {
@@ -123,6 +144,54 @@ export default function CustomerInsightsPage() {
           <div className="cip-stat-card">
             <label>Unique Customers</label>
             <h3>{new Set(orders.map(o => o.customerId)).size}</h3>
+          </div>
+        </div>
+
+        <div className="cip-ml-summary-grid">
+          <div className="cip-stat-card cip-risk-summary-card">
+            <label>Churn Risk Distribution</label>
+            <div className="cip-risk-boxes">
+              <div className="cip-risk-box low">
+                <span className="cip-risk-count">{riskStats.low}</span>
+                <span className="cip-risk-label">Low Risk</span>
+              </div>
+              <div className="cip-risk-box medium">
+                <span className="cip-risk-count">{riskStats.medium}</span>
+                <span className="cip-risk-label">Medium Risk</span>
+              </div>
+              <div className="cip-risk-box high">
+                <span className="cip-risk-count">{riskStats.high}</span>
+                <span className="cip-risk-label">High Risk</span>
+              </div>
+            </div>
+            <p className="cip-card-note">Based on {Object.keys(churnPredictions).length} analyzed customers.</p>
+          </div>
+
+          <div className="cip-stat-card cip-chart-card">
+            <label>Risk Visualization</label>
+            <div className="cip-chart-container">
+              {hasPredictions ? (
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      innerRadius={40}
+                      outerRadius={60}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="cip-chart-placeholder">No analysis data available</div>
+              )}
+            </div>
           </div>
         </div>
 
