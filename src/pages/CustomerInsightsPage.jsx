@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ArrowLeft, ChevronLeft, ChevronRight, BrainCircuit, RefreshCw } from "lucide-react";
 import { ordersClient } from "../api/ordersClient";
+import { mlClient } from "../api/mlClient";
 import { useAuth } from "../context/AuthContext";
 import "./CustomerInsightsPage.css";
 
@@ -15,11 +16,21 @@ const STATUS_CLASS = {
   CANCELLED: "cip-badge--error",
 };
 
+const CHURN_STATUS_CLASS = {
+  LOW: "cip-badge--success",
+  MEDIUM: "cip-badge--warning",
+  HIGH: "cip-badge--error",
+  CRITICAL: "cip-badge--error",
+  UNKNOWN: "cip-badge--info",
+};
+
 export default function CustomerInsightsPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [churnPredictions, setChurnPredictions] = useState({});
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,6 +64,27 @@ export default function CustomerInsightsPage() {
       (o.externalOrderId && o.externalOrderId.toLowerCase().includes(q))
     );
   }, [orders, searchTerm]);
+
+  const uniqueCustomerIds = useMemo(() => [...new Set(orders.map(o => o.customerId))], [orders]);
+
+  const runChurnAnalysis = async () => {
+    setAnalyzing(true);
+    const newPredictions = { ...churnPredictions };
+    try {
+      // Parallel fetch for all unique customers
+      await Promise.allSettled(uniqueCustomerIds.map(async (id) => {
+        if (!newPredictions[id]) {
+          const res = await mlClient.getChurnPrediction(id);
+          if (res) newPredictions[id] = res;
+        }
+      }));
+      setChurnPredictions(newPredictions);
+    } catch (err) {
+      console.error("Churn analysis failed:", err);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -91,6 +123,60 @@ export default function CustomerInsightsPage() {
           <div className="cip-stat-card">
             <label>Unique Customers</label>
             <h3>{new Set(orders.map(o => o.customerId)).size}</h3>
+          </div>
+        </div>
+
+        <div className="cip-table-card cip-ml-section">
+          <div className="cip-table-header">
+            <div className="cip-title-with-icon">
+              <BrainCircuit size={20} className="text-primary" />
+              <h2>Customer Churn Analysis</h2>
+            </div>
+            <button 
+              className="cip-analyze-btn" 
+              onClick={runChurnAnalysis} 
+              disabled={analyzing || uniqueCustomerIds.length === 0}
+            >
+              {analyzing ? <RefreshCw size={16} className="cip-spin" /> : "Run AI Risk Assessment"}
+            </button>
+          </div>
+          <div className="cip-table-scroll" style={{maxHeight: '300px'}}>
+            <table className="cip-table">
+              <thead>
+                <tr>
+                  <th>Customer ID</th>
+                  <th>Risk Status</th>
+                  <th>Churn Probability</th>
+                  <th>Model Version</th>
+                  <th>Last Assessment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uniqueCustomerIds.map(id => {
+                  const pred = churnPredictions[id];
+                  return (
+                    <tr key={id}>
+                      <td className="cip-td-mono">{id}</td>
+                      <td>
+                        <span className={`cip-badge ${CHURN_STATUS_CLASS[pred?.churnRiskLabel] || "cip-badge--info"}`}>
+                          {pred?.churnRiskLabel || "NOT ANALYZED"}
+                        </span>
+                      </td>
+                      <td className="cip-td-bold">
+                        {pred ? `${(pred.churnProbability * 100).toFixed(1)}%` : "--"}
+                      </td>
+                      <td>{pred?.modelVersion || "--"}</td>
+                      <td className="cip-td-mono">
+                        {pred ? new Date(pred.predictedAt).toLocaleString() : "Never"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {uniqueCustomerIds.length === 0 && (
+              <div className="cip-empty">No customers available for analysis.</div>
+            )}
           </div>
         </div>
 
