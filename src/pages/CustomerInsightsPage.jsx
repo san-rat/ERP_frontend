@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, ArrowLeft, ChevronLeft, ChevronRight, BrainCircuit, RefreshCw } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Search, ArrowLeft, ChevronLeft, ChevronRight, BrainCircuit, RefreshCw, User } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { ordersClient } from "../api/ordersClient";
 import { mlClient } from "../api/mlClient";
@@ -224,7 +224,11 @@ export default function CustomerInsightsPage() {
                   const pred = churnPredictions[id];
                   return (
                     <tr key={id}>
-                      <td className="cip-td-mono">{id}</td>
+                      <td className="cip-td-mono">
+                        <Link to={`/customer-insights/${id}/orders`} className="cip-customer-link">
+                          <User size={14} style={{verticalAlign: 'middle', marginRight: '4px'}} />{id}
+                        </Link>
+                      </td>
                       <td className="cip-td-bold">
                         {pred ? `${(pred.churnProbability * 100).toFixed(1)}%` : "--"}
                       </td>

@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Calendar, DollarSign, Package, BarChart3 } from "lucide-react";
+import { ArrowLeft, TrendingUp, Calendar, DollarSign, Package, BarChart3, Brain, RotateCcw, Clock } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { forecastingClient } from "../api/forecastingClient";
 import "./ProductAnalyticsPage.css";
 
 export default function ProductAnalyticsPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState({ metrics: null, analysis: null });
+  const [data, setData] = useState({ metrics: null, analysis: null, forecast: null, schedule: null });
   const [loading, setLoading] = useState(true);
+  const [retraining, setRetraining] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -18,10 +21,12 @@ export default function ProductAnalyticsPage() {
       try {
         const results = await Promise.allSettled([
           forecastingClient.getSingleProductMetrics(productId),
-          forecastingClient.getSingleProductAnalysis(productId)
+          forecastingClient.getSingleProductAnalysis(productId),
+          forecastingClient.getLatestForecast(productId),
+          forecastingClient.getRetrainingSchedule(productId)
         ]);
 
-        const [mRes, aRes] = results;
+        const [mRes, aRes, fRes, sRes] = results;
 
         if (mRes.status === 'rejected' && aRes.status === 'rejected') {
           throw new Error("Product data unavailable.");
@@ -29,7 +34,9 @@ export default function ProductAnalyticsPage() {
 
         setData({ 
           metrics: mRes.status === 'fulfilled' ? mRes.value : null, 
-          analysis: aRes.status === 'fulfilled' ? aRes.value : null 
+          analysis: aRes.status === 'fulfilled' ? aRes.value : null,
+          forecast: fRes.status === 'fulfilled' ? fRes.value : null,
+          schedule: sRes.status === 'fulfilled' ? sRes.value : null
         });
       } catch (err) {
         setError("Failed to load product intelligence data.");
@@ -40,10 +47,41 @@ export default function ProductAnalyticsPage() {
     fetchDetails();
   }, [productId]);
 
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const newForecast = await forecastingClient.generateForecast(productId);
+      setData(prev => ({ ...prev, forecast: newForecast }));
+    } catch (err) {
+      alert("Failed to generate forecast. Please ensure the service is running.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleRetrain = async () => {
+    setRetraining(true);
+    try {
+      await forecastingClient.retrainModel(productId);
+      // Refresh data after retraining
+      const newForecast = await forecastingClient.generateForecast(productId);
+      setData(prev => ({ ...prev, forecast: newForecast }));
+    } catch (err) {
+      alert("Model retraining initiated. Please refresh in a few minutes.");
+    } finally {
+      setRetraining(false);
+    }
+  };
+
   if (loading) return <div className="pa-loading">Analyzing product data...</div>;
   if (error) return <div className="pa-error">{error}</div>;
 
-  const { metrics, analysis } = data;
+  const { metrics, analysis, forecast } = data;
+
+  const chartData = forecast?.forecasts?.map(f => ({
+    date: new Date(f.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+    units: f.forecastedUnits
+  })) || [];
 
   return (
     <div className="pa-root">
@@ -88,6 +126,57 @@ export default function ProductAnalyticsPage() {
               <h3>{analysis?.avgDailySales?.toFixed(1)}</h3>
             </div>
           </div>
+
+          {/* Forecast Chart Section */}
+          <section className="pa-card pa-chart-section">
+            <div className="pa-card-header">
+              <h2>30-Day Unit Demand Forecast</h2>
+              <span className="pa-algo-tag">Algorithm: {forecast?.algorithm || 'Prophet'}</span>
+            </div>
+            <div className="pa-chart-container">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="date" fontSize={12} tickMargin={10} />
+                    <YAxis fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <Bar dataKey="units" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="pa-no-data">
+                  <p>No forecast data available for this product yet.</p>
+                  <button className="pa-generate-btn" onClick={handleGenerate} disabled={generating}>
+                    {generating ? 'Generating...' : 'Generate Initial Forecast'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Retraining Control Card */}
+          <section className="pa-card pa-retrain-card">
+            <div className="pa-retrain-info">
+              <div className="pa-icon-wrap"><Brain size={20} /></div>
+              <div>
+                <h2>AI Model Lifecycle</h2>
+                <div className="pa-retrain-dates">
+                  <span title="Last Generated At"><Clock size={14} /> Last Trained: {forecast?.generatedAt ? new Date(forecast.generatedAt).toLocaleString() : 'Never'}</span>
+                  <span><Calendar size={14} /> Next Scheduled: {data.schedule?.nextRunDate ? new Date(data.schedule.nextRunDate).toLocaleDateString() : 'Weekly Sync'}</span>
+                </div>
+              </div>
+            </div>
+            <button 
+              className={`pa-retrain-btn ${retraining ? 'loading' : ''}`} 
+              onClick={handleRetrain}
+              disabled={retraining}
+            >
+              <RotateCcw size={16} /> {retraining ? 'Processing...' : 'Retrain Model'}
+            </button>
+          </section>
 
           {/* Intelligence Section */}
           <section className="pa-intelligence-section">

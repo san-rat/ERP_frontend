@@ -16,6 +16,7 @@ import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
 import AnalyticsPage from "./pages/AnalyticsPage.jsx";
 import ProductAnalyticsPage from "./pages/ProductAnalyticsPage.jsx";
 import CustomerInsightsPage from "./pages/CustomerInsightsPage.jsx";
+import CustomerOrderHistoryPage from "./pages/CustomerOrderHistoryPage.jsx";
 
 const RootLayout = () => {
   return (
@@ -66,6 +67,7 @@ const router = createBrowserRouter([
       { path: "/analytics", element: <ProtectedRoute><AnalyticsPage /></ProtectedRoute> },
       { path: "/analytics/:productId", element: <ProtectedRoute><ProductAnalyticsPage /></ProtectedRoute> },
       { path: "/customer-insights", element: <ProtectedRoute><CustomerInsightsPage /></ProtectedRoute> },
+      { path: "/customer-insights/:customerId/orders", element: <ProtectedRoute><CustomerOrderHistoryPage /></ProtectedRoute> },
       { path: "/login", element: <LoginWrapper /> },
       { path: "/register", element: <RegisterWrapper /> },
       {
