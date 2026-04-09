@@ -1796,19 +1796,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {}
+    "C:\\Users\\dines\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\coding\\projects\\2026\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\ERP.E2E.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\dines\\OneDrive\\Desktop\\ERP\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\ERP.E2E.Tests.csproj",
       "projectName": "ERP.E2E.Tests",
-      "projectPath": "C:\\Users\\User\\Desktop\\coding\\projects\\2026\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\ERP.E2E.Tests.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\coding\\projects\\2026\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\obj\\",
+      "projectPath": "C:\\Users\\dines\\OneDrive\\Desktop\\ERP\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\ERP.E2E.Tests.csproj",
+      "packagesPath": "C:\\Users\\dines\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\dines\\OneDrive\\Desktop\\ERP\\ERP_frontend\\tests\\E2E\\ERP.E2E.Tests\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\dines\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -1832,7 +1837,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -1887,7 +1892,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.311/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
