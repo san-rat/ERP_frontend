@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -8,51 +9,110 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
   Bell,
   TrendingUp,
   TrendingDown,
-  ChevronRight,
 } from "lucide-react";
+import { forecastingClient } from "../api/forecastingClient";
+import { ordersClient } from "../api/ordersClient";
 import "./HomePage.css";
 
 /* ── Navigation items ── */
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Users, label: "Customers", active: false },
-  { icon: ShoppingCart, label: "Orders", active: false },
-  { icon: Package, label: "Products", active: false },
-  { icon: BarChart2, label: "Reports", active: false },
-  { icon: Settings, label: "Settings", active: false },
-];
-
-/* ── KPI data ── */
-const KPIS = [
-  { label: "Total Revenue", value: "$84,320", change: "+12.4%", up: true },
-  { label: "Active Orders", value: "1,248", change: "+8.1%", up: true },
-  { label: "Total Customers", value: "5,610", change: "+3.7%", up: true },
-  { label: "Pending Issues", value: "24", change: "-5.2%", up: false },
-];
-
-/* ── Recent orders ── */
-const RECENT_ORDERS = [
-  { id: "#ORD-0041", customer: "Nimal Perera", amount: "$1,200", status: "Completed" },
-  { id: "#ORD-0042", customer: "Amara Silva", amount: "$450", status: "Pending" },
-  { id: "#ORD-0043", customer: "Kasun Fernando", amount: "$3,100", status: "Processing" },
-  { id: "#ORD-0044", customer: "Dilani Mendis", amount: "$720", status: "Completed" },
-  { id: "#ORD-0045", customer: "Ruwan Bandara", amount: "$990", status: "Cancelled" },
+  { icon: BarChart2, label: "Product Insights", active: false },
+  { icon: Users, label: "Customer Insights", active: false },
 ];
 
 const STATUS_CLASS = {
-  Completed: "hp-badge hp-badge--success",
-  Pending: "hp-badge hp-badge--warning",
-  Processing: "hp-badge hp-badge--info",
-  Cancelled: "hp-badge hp-badge--error",
+  DELIVERED: "hp-badge hp-badge--success",
+  COMPLETED: "hp-badge hp-badge--success",
+  PENDING: "hp-badge hp-badge--warning",
+  CREATED: "hp-badge hp-badge--warning",
+  PROCESSING: "hp-badge hp-badge--info",
+  SHIPPED: "hp-badge hp-badge--info",
+  CANCELLED: "hp-badge hp-badge--error",
 };
 
 export default function HomePage({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Dashboard");
+  const navigate = useNavigate();
+  
+  // KPI State
+  const [kpiData, setKpiData] = useState({
+    totalRevenue: 0,
+    activeOrders: 0,
+    totalCustomers: 0,
+    orders: [],
+    loading: true
+  });
+
+  useEffect(() => {
+    async function fetchKpis() {
+      try {
+        const results = await Promise.allSettled([
+          forecastingClient.getProductMetrics(),
+          ordersClient.getAll(),
+          ordersClient.getSummary()
+        ]);
+
+        const [forecastRes, ordersRes, summaryRes] = results;
+
+        let revenue = 0;
+        let customers = 0;
+        let active = 0;
+        let orders = [];
+
+        // Calculate Revenue from Forecasting
+        if (forecastRes.status === 'fulfilled') {
+          const products = forecastRes.value?.products || forecastRes.value || [];
+          revenue = products.reduce((sum, p) => sum + (p.totalRevenue || 0), 0);
+        }
+
+        // Calculate Customers from Orders
+        if (ordersRes.status === 'fulfilled') {
+          orders = ordersRes.value || [];
+          customers = new Set(orders.map(o => o.customerId)).size;
+        }
+
+        // Calculate Active Orders from Summary
+        if (summaryRes.status === 'fulfilled') {
+          const summary = summaryRes.value || {};
+          active = (summary.pending || 0) + (summary.processing || 0) + (summary.shipped || 0);
+        }
+
+        setKpiData({
+          totalRevenue: revenue,
+          activeOrders: active,
+          totalCustomers: customers,
+          orders: orders,
+          loading: false
+        });
+      } catch (err) {
+        console.error("Dashboard KPI fetch error:", err);
+        setKpiData(prev => ({ ...prev, loading: false }));
+      }
+    }
+
+    fetchKpis();
+  }, []);
+
+  const handleNavClick = (label) => {
+    setActiveNav(label);
+    setSidebarOpen(false);
+    if (label === "Product Insights") {
+      navigate("/analytics");
+    }
+    if (label === "Customer Insights") {
+      navigate("/customer-insights");
+    }
+  };
+
+  // Get the last 5 orders
+  const recentOrders = [...kpiData.orders]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return (
     <div className="hp-root">
@@ -72,7 +132,6 @@ export default function HomePage({ user, onLogout }) {
             onClick={() => setSidebarOpen(false)}
             aria-label="Close menu"
           >
-            <X size={18} />
           </button>
         </div>
 
@@ -82,7 +141,7 @@ export default function HomePage({ user, onLogout }) {
             <button
               key={label}
               className={`hp-nav-item${activeNav === label ? " hp-nav-item--active" : ""}`}
-              onClick={() => { setActiveNav(label); setSidebarOpen(false); }}
+              onClick={() => handleNavClick(label)}
             >
               <Icon size={18} strokeWidth={1.75} />
               <span>{label}</span>
@@ -124,7 +183,7 @@ export default function HomePage({ user, onLogout }) {
                 {user?.email?.[0]?.toUpperCase() ?? "U"}
               </div>
               <div className="hp-user-info">
-                <span className="hp-user-email">{user?.email ?? "user@company.com"}</span>
+                <span className="hp-user-email">{user?.email ?? "manager@company.com"}</span>
                 <span className="hp-user-role">{user?.role ?? "Admin"}</span>
               </div>
             </div>
@@ -136,33 +195,62 @@ export default function HomePage({ user, onLogout }) {
           {/* Page header */}
           <div className="hp-page-header">
             <div>
-              <h1 className="hp-page-title">Dashboard</h1>
-              <p className="hp-page-sub">Welcome back, {user?.email?.split("@")[0] ?? "User"}</p>
+              <h1 className="hp-page-title">Manager Dashboard</h1>
+              <p className="hp-page-sub">Welcome back {user?.email?.split("@")[0] ?? ""}</p>
             </div>
-            <button className="hp-btn-primary">
-              New Order <ChevronRight size={16} />
-            </button>
+            <div className="hp-page-actions">
+              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>Customer Insights</button>
+            </div>
           </div>
 
           {/* KPI cards */}
           <div className="hp-kpi-grid">
-            {KPIS.map((k) => (
-              <div key={k.label} className="hp-kpi-card">
-                <p className="hp-kpi-label">{k.label}</p>
-                <p className="hp-kpi-value">{k.value}</p>
-                <span className={`hp-kpi-change${k.up ? " hp-kpi-change--up" : " hp-kpi-change--down"}`}>
-                  {k.up ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                  {k.change} vs last month
-                </span>
+            {/* Total Revenue Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Total Revenue</h2>
               </div>
-            ))}
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : `$${kpiData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Real-time data</span>
+              </div>
+            </div>
+
+            {/* Active Orders Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Active Orders</h2>
+              </div>
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : kpiData.activeOrders.toLocaleString()}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Current queue</span>
+              </div>
+            </div>
+
+            {/* Total Customers Card */}
+            <div className="hp-section-card">
+              <div className="hp-section-header">
+                <h2 className="hp-section-title">Total Customers</h2>
+              </div>
+              <div className="hp-kpi-card" style={{ border: 'none', boxShadow: 'none' }}>
+                <p className="hp-kpi-value">
+                  {kpiData.loading ? "..." : kpiData.totalCustomers.toLocaleString()}
+                </p>
+                <span className="hp-kpi-change hp-kpi-change--up">Unique clients</span>
+              </div>
+            </div>
           </div>
 
           {/* Recent orders table */}
           <div className="hp-section-card">
             <div className="hp-section-header">
               <h2 className="hp-section-title">Recent Orders</h2>
-              <button className="hp-btn-secondary">View all</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>View all</button>
             </div>
 
             <div className="hp-table-wrap">
@@ -176,13 +264,13 @@ export default function HomePage({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {RECENT_ORDERS.map((row) => (
+                  {recentOrders.map((row) => (
                     <tr key={row.id}>
-                      <td className="hp-td-mono">{row.id}</td>
-                      <td>{row.customer}</td>
-                      <td>{row.amount}</td>
+                      <td className="hp-td-mono">{row.externalOrderId || row.id}</td>
+                      <td>{row.customerId}</td>
+                      <td>${Number(row.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                       <td>
-                        <span className={STATUS_CLASS[row.status]}>
+                        <span className={STATUS_CLASS[row.status?.toUpperCase()] || "hp-badge"}>
                           {row.status}
                         </span>
                       </td>
@@ -190,6 +278,11 @@ export default function HomePage({ user, onLogout }) {
                   ))}
                 </tbody>
               </table>
+              {recentOrders.length === 0 && !kpiData.loading && (
+                <div style={{ padding: '2rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--ink-60)' }}>
+                  No recent orders found.
+                </div>
+              )}
             </div>
           </div>
         </main>

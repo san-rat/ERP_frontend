@@ -1,14 +1,8 @@
 import { fetchWithAuth } from "./apiUtils";
 
-const BASE_URL = "/api/orders";
+const ORDER_API_BASE = "http://localhost:5003/api/orders";
 
 export const ordersClient = {
-  getAll: () => fetchWithAuth(BASE_URL),
-  
-  getById: (id) => fetchWithAuth(`${BASE_URL}/${id}`),
-  
-  updateStatus: (id, payload) => fetchWithAuth(`${BASE_URL}/${id}/status`, {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  }),
+  getAll: () => fetchWithAuth(`${ORDER_API_BASE}`),
+  getSummary: () => fetchWithAuth(`${ORDER_API_BASE}/reports/summary`),
 };
