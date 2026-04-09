@@ -13,10 +13,10 @@ import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
 import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
 import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
-import AnalyticsPage from "./pages/AnalyticsPage.jsx";
-import ProductAnalyticsPage from "./pages/ProductAnalyticsPage.jsx";
-import CustomerInsightsPage from "./pages/CustomerInsightsPage.jsx";
-import CustomerOrderHistoryPage from "./pages/CustomerOrderHistoryPage.jsx";
+import AnalyticsPage from "./pages/manager/AnalyticsPage.jsx";
+import ProductAnalyticsPage from "./pages/manager/ProductAnalyticsPage.jsx";
+import CustomerInsightsPage from "./pages/manager/CustomerInsightsPage.jsx";
+import CustomerOrderHistoryPage from "./pages/manager/CustomerOrderHistoryPage.jsx";
 
 const RootLayout = () => {
   return (
