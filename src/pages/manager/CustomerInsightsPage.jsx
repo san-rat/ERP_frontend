@@ -127,7 +127,7 @@ export default function CustomerInsightsPage() {
             <ArrowLeft size={18} /> Back to Dashboard
           </button>
           <h1>Customer Insights</h1>
-          <p>Comprehensive overview of all customer transactions and order statuses.</p>
+          <p></p>
           {error && (
             <div className="cip-error-banner">
               {error} 

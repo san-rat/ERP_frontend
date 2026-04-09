@@ -4,7 +4,7 @@ import { Search, ArrowLeft } from "lucide-react";
 import { forecastingClient } from "../../api/forecastingClient";
 import { ordersClient } from "../../api/ordersClient";
 import { useAuth } from "../../context/AuthContext";
-import "./AnalyticsPage.css";
+import "../AnalyticsPage.css";
 
 export default function AnalyticsPage() {
   const navigate = useNavigate();

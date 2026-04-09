@@ -185,7 +185,7 @@ export default function HomePage({ user, onLogout }) {
                 {user?.email?.[0]?.toUpperCase() ?? "U"}
               </div>
               <div className="hp-user-info">
-                <span className="hp-user-email">{user?.email ?? "user@company.com"}</span>
+                <span className="hp-user-email">{user?.email ?? "manager@company.com"}</span>
                 <span className="hp-user-role">{user?.role ?? "Admin"}</span>
               </div>
             </div>
@@ -197,8 +197,8 @@ export default function HomePage({ user, onLogout }) {
           {/* Page header */}
           <div className="hp-page-header">
             <div>
-              <h1 className="hp-page-title">Dashboard</h1>
-              <p className="hp-page-sub">Welcome back, {user?.email?.split("@")[0] ?? "User"}</p>
+              <h1 className="hp-page-title">Manager Dashboard</h1>
+              <p className="hp-page-sub">Welcome back {user?.email?.split("@")[0] ?? ""}</p>
             </div>
             <div className="hp-page-actions">
               <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
