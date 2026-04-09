@@ -215,7 +215,6 @@ export default function CustomerInsightsPage() {
                 <tr>
                   <th>Customer ID</th>
                   <th>Churn Probability</th>
-                  <th>Model Version</th>
                   <th>Last Assessment</th>
                 </tr>
               </thead>
@@ -232,7 +231,6 @@ export default function CustomerInsightsPage() {
                       <td className="cip-td-bold">
                         {pred ? `${(pred.churnProbability * 100).toFixed(1)}%` : "--"}
                       </td>
-                      <td>{pred?.modelVersion || "--"}</td>
                       <td className="cip-td-mono">
                         {pred ? new Date(pred.predictedAt).toLocaleString() : "Never"}
                       </td>
