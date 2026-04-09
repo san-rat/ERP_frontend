@@ -9,7 +9,6 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
   Bell,
   TrendingUp,
   TrendingDown,
@@ -133,7 +132,6 @@ export default function HomePage({ user, onLogout }) {
             onClick={() => setSidebarOpen(false)}
             aria-label="Close menu"
           >
-            <X size={18} />
           </button>
         </div>
 
