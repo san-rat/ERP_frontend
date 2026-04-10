@@ -23,7 +23,7 @@ export const adminApi = {
     apiFetch("/api/admin/dashboard/overview").then(handleResponse),
 
   getUsers: (params = {}) => {
-    const query = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([_, v]) => v))).toString();
+    const query = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== ""))).toString();
     return apiFetch(`/api/admin/users${query ? '?' + query : ''}`).then(handleResponse);
   },
 

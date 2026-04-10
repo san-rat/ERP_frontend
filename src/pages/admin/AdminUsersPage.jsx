@@ -29,12 +29,20 @@ export default function AdminUsersPage() {
 
   const loadData = useCallback(() => {
     setLoading(true);
-    adminApi.getUsers({ page, limit: 10, search, role: roleFilter, status: statusFilter })
+
+    // Build params to match backend contract (UserListQuery.cs)
+    const params = { pageNumber: page, pageSize: 10 };
+    if (search) params.search = search;
+    if (roleFilter !== "ALL") params.role = roleFilter;
+    if (statusFilter === "ACTIVE") params.isActive = true;
+    if (statusFilter === "INACTIVE") params.isActive = false;
+
+    adminApi.getUsers(params)
       .then(res => {
-        // Adapt depending on backend response struct (arrays vs paging objects)
-        const items = Array.isArray(res) ? res : (res.data || res.content || res.users || []);
+        // Backend returns PagedResponse with an `items` array
+        const items = Array.isArray(res) ? res : (res.items || res.data || res.content || res.users || []);
         setUsers(items);
-        setTotalPages(res.totalPages || Math.ceil(items.length/10) || 1);
+        setTotalPages(res.totalPages || Math.ceil(items.length / 10) || 1);
       })
       .catch(err => toast.error("Failed to fetch users: " + err.message))
       .finally(() => setLoading(false));

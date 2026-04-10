@@ -22,7 +22,15 @@ export default function AdminUserModal({ isOpen, onClose, onSubmit, user, submit
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ username, email, role, id: user?.id });
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    if (user) {
+      // Edit mode: include id so the caller can route to the right endpoint
+      onSubmit({ username: trimmedUsername, email: trimmedEmail, role, id: user.id });
+    } else {
+      // Create mode: only send what the backend contract requires
+      onSubmit({ username: trimmedUsername, email: trimmedEmail, role });
+    }
   };
 
   return (
@@ -38,8 +46,8 @@ export default function AdminUserModal({ isOpen, onClose, onSubmit, user, submit
             <input required type="text" className="w-full border border-surface rounded-lg px-3 py-2 focus:outline-none focus:border-primary disabled:bg-surface/50 disabled:text-ink/50" value={username} onChange={e => setUsername(e.target.value)} disabled={!!user} placeholder="System login handle" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-ink/90">Email Address</label>
-            <input type="email" className="w-full border border-surface rounded-lg px-3 py-2 focus:outline-none focus:border-primary" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email routing identity" />
+            <label className="block text-sm font-medium mb-1.5 text-ink/90">Email Address <span className="text-danger">*</span></label>
+            <input required type="email" className="w-full border border-surface rounded-lg px-3 py-2 focus:outline-none focus:border-primary" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email routing identity" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5 text-ink/90">System Role <span className="text-danger">*</span></label>
