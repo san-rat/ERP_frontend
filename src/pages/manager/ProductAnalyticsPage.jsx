@@ -23,7 +23,7 @@ export default function ProductAnalyticsPage() {
           forecastingClient.getSingleProductMetrics(productId),
           forecastingClient.getSingleProductAnalysis(productId),
           forecastingClient.getLatestForecast(productId),
-          forecastingClient.getRetrainingSchedule(productId)
+          forecastingClient.getRetrainingSchedule()
         ]);
 
         const [mRes, aRes, fRes, sRes] = results;
@@ -62,7 +62,7 @@ export default function ProductAnalyticsPage() {
   const handleRetrain = async () => {
     setRetraining(true);
     try {
-      await forecastingClient.retrainModel(productId);
+      await forecastingClient.retrainModel();
       // Refresh data after retraining
       const newForecast = await forecastingClient.generateForecast(productId);
       setData(prev => ({ ...prev, forecast: newForecast }));
@@ -165,7 +165,7 @@ export default function ProductAnalyticsPage() {
                 <h2>AI Model Lifecycle</h2>
                 <div className="pa-retrain-dates">
                   <span title="Last Generated At"><Clock size={14} /> Last Trained: {forecast?.generatedAt ? new Date(forecast.generatedAt).toLocaleString() : 'Never'}</span>
-                  <span><Calendar size={14} /> Next Scheduled: {data.schedule?.nextRunDate ? new Date(data.schedule.nextRunDate).toLocaleDateString() : 'Weekly Sync'}</span>
+                  <span><Calendar size={14} /> Next Scheduled: {data.schedule?.nextScheduledRetrain ? new Date(data.schedule.nextScheduledRetrain).toLocaleDateString() : 'Weekly Sync'}</span>
                 </div>
               </div>
             </div>
