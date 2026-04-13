@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, TrendingUp, Calendar, DollarSign, Package, BarChart3, Brain, RotateCcw, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { forecastingClient } from "../../api/forecastingClient";
+import AlertsMenu from "../../components/common/AlertsMenu";
 import "./ProductAnalyticsPage.css";
 
 export default function ProductAnalyticsPage() {
@@ -93,7 +94,10 @@ export default function ProductAnalyticsPage() {
         <header className="pa-header">
           <div className="pa-title-section">
             <span className="pa-sku-badge">{metrics?.sku}</span>
-            <h1>{metrics?.productName}</h1>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <h1 style={{ margin: 0 }}>{metrics?.productName}</h1>
+              <AlertsMenu />
+            </div>
             <p>Intelligence report for the current forecasting period</p>
           </div>
           <div className="pa-status-badge" data-trend={analysis?.trend}>

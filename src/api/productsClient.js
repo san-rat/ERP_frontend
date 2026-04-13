@@ -31,4 +31,13 @@ export const productsClient = {
   getStock: () => fetchWithAuth(`${BASE_URL}/stock`),
 
   getStockById: (id) => fetchWithAuth(`${BASE_URL}/${id}/stock`),
+
+  // Alerts
+  getAlerts: (unresolvedOnly = false) => {
+    const url = new URL(`${BASE_URL}/alerts`, window.location.origin);
+    if (unresolvedOnly) url.searchParams.append("unresolvedOnly", "true");
+    return fetchWithAuth(url.toString());
+  },
+  
+  resolveAlert: (id) => fetchWithAuth(`${BASE_URL}/alerts/${id}/resolve`, { method: "PATCH" }),
 };

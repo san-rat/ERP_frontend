@@ -4,6 +4,7 @@ import { Search, ArrowLeft } from "lucide-react";
 import { forecastingClient } from "../../api/forecastingClient";
 import { ordersClient } from "../../api/ordersClient";
 import { useAuth } from "../../context/AuthContext";
+import AlertsMenu from "../../components/common/AlertsMenu";
 import "./AnalyticsPage.css";
 
 export default function AnalyticsPage() {
@@ -109,8 +110,9 @@ export default function AnalyticsPage() {
           <button className="analytics-back-btn" onClick={() => navigate("/")}>
             <ArrowLeft size={18} /> Back to Dashboard
           </button>
-          <div>
-            <h1>Product Insights</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <h1 style={{ margin: 0 }}>Product Insights</h1>
+            <AlertsMenu />
           </div>
         </div>
 

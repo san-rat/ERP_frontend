@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { forecastingClient } from "../api/forecastingClient";
 import { ordersClient } from "../api/ordersClient";
+import AlertsMenu from "../components/common/AlertsMenu";
 import "./HomePage.css";
 
 /* ── Navigation items ── */
@@ -174,10 +175,7 @@ export default function HomePage({ user, onLogout }) {
             </div>
           </div>
           <div className="hp-topbar-right">
-            <button className="hp-topbar-icon" aria-label="Notifications">
-              <Bell size={20} strokeWidth={1.75} />
-              <span className="hp-notif-dot" />
-            </button>
+            <AlertsMenu />
             <div className="hp-user-chip">
               <div className="hp-user-avatar">
                 {user?.email?.[0]?.toUpperCase() ?? "U"}

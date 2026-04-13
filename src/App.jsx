@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import LoginPage    from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import HomePage     from "./pages/HomePage.jsx";
@@ -13,6 +14,8 @@ import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
 import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
 import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
+import ManagerRouteGuard from "./components/auth/ManagerRouteGuard.jsx";
+import ManagerLayout from "./layouts/ManagerLayout.jsx";
 import AnalyticsPage from "./pages/manager/AnalyticsPage.jsx";
 import ProductAnalyticsPage from "./pages/manager/ProductAnalyticsPage.jsx";
 import CustomerInsightsPage from "./pages/manager/CustomerInsightsPage.jsx";
@@ -21,7 +24,9 @@ import CustomerOrderHistoryPage from "./pages/manager/CustomerOrderHistoryPage.j
 const RootLayout = () => {
   return (
     <AuthProvider>
-      <Outlet />
+      <NotificationProvider>
+        <Outlet />
+      </NotificationProvider>
     </AuthProvider>
   );
 };
@@ -49,6 +54,7 @@ const LoginWrapper = () => {
     const role = user.role?.toUpperCase();
     if (role === "ADMIN") return <Navigate to="/admin" replace />;
     if (role === "EMPLOYEE") return <Navigate to="/employee/overview" replace />;
+    if (role === "MANAGER") return <Navigate to="/manager/analytics" replace />;
     return <Navigate to="/" replace />;
   }
   return <LoginPage onLogin={login} onRegister={() => navigate("/register")} />;
@@ -64,10 +70,6 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: "/", element: <HomeWrapper /> },
-      { path: "/analytics", element: <ProtectedRoute><AnalyticsPage /></ProtectedRoute> },
-      { path: "/analytics/:productId", element: <ProtectedRoute><ProductAnalyticsPage /></ProtectedRoute> },
-      { path: "/customer-insights", element: <ProtectedRoute><CustomerInsightsPage /></ProtectedRoute> },
-      { path: "/customer-insights/:customerId/orders", element: <ProtectedRoute><CustomerOrderHistoryPage /></ProtectedRoute> },
       { path: "/login", element: <LoginWrapper /> },
       { path: "/register", element: <RegisterWrapper /> },
       {
@@ -94,6 +96,24 @@ const router = createBrowserRouter([
               { path: "orders", element: <EmployeeOrdersPage /> },
               { path: "products", element: <EmployeeProductsPage /> },
               { path: "inventory", element: <EmployeeInventoryPage /> }
+            ]
+          }
+        ]
+      },
+      {
+        path: "/manager",
+        element: <ManagerRouteGuard />,
+        children: [
+          {
+            element: <ManagerLayout />,
+            children: [
+              { index: true, element: <Navigate to="/manager/analytics" replace /> },
+              { path: "analytics", element: <AnalyticsPage /> },
+              { path: "product-analytics", element: <ProductAnalyticsPage /> },
+              { path: "product-analytics/:productId", element: <ProductAnalyticsPage /> },
+              { path: "customer-insights", element: <CustomerInsightsPage /> },
+              { path: "customer-insights/:customerId/orders", element: <CustomerOrderHistoryPage /> },
+              { path: "order-history", element: <CustomerOrderHistoryPage /> },
             ]
           }
         ]

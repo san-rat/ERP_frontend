@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { 
-  Menu, X, LogOut, Bell,
+  Menu, X, LogOut,
   LayoutDashboard, ShoppingCart, Package, Archive
 } from "lucide-react";
+import NotificationPanel from "../components/common/NotificationPanel";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Overview", path: "/employee/overview" },
@@ -84,7 +85,7 @@ export default function EmployeeLayout() {
       {/* Main Content wrapper */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-[#D8C4B6] flex items-center justify-between px-4 sm:px-6 z-10 sticky top-0">
+        <header className="h-16 bg-white border-b border-[#D8C4B6] flex items-center justify-between px-4 sm:px-6 z-50 sticky top-0">
           <div className="flex items-center gap-4">
             <button 
               className="md:hidden p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-lg"
@@ -96,10 +97,7 @@ export default function EmployeeLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-            </button>
+            <NotificationPanel />
             
             <div className="h-8 w-px bg-gray-200"></div>
 

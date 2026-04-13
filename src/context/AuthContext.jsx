@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }) => {
       navigate("/admin");
     } else if (role === "EMPLOYEE") {
       navigate("/employee/overview");
+    } else if (role === "MANAGER") {
+      navigate("/manager/analytics");
     } else {
       navigate("/");
     }

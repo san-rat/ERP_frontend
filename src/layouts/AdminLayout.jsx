@@ -1,6 +1,7 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LayoutDashboard, Users, LogOut, Shield } from "lucide-react";
+import NotificationPanel from "../components/common/NotificationPanel";
 
 export default function AdminLayout() {
   const { logout, user } = useAuth();
@@ -45,10 +46,17 @@ export default function AdminLayout() {
 
       {/* Main Content Area */}
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        {/* Topbar for mobile */}
-        <header className="h-16 bg-white shadow-sm flex items-center px-6 md:hidden">
-            <Shield className="text-primary mr-2" size={24} />
-            <span className="font-bold">Admin Portal</span>
+        {/* Topbar */}
+        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-50 relative">
+            <div className="flex items-center md:hidden">
+              <Shield className="text-primary mr-2" size={24} />
+              <span className="font-bold">Admin Portal</span>
+            </div>
+            
+            {/* Right side stuff for all sizes */}
+            <div className="flex items-center justify-end w-full md:w-auto ml-auto gap-4">
+              <NotificationPanel />
+            </div>
         </header>
 
         {/* Dynamic Content */}
