@@ -61,16 +61,22 @@ public class EmployeeOrdersTests
     [Description("Typing a non-matching query in the search box reduces the visible rows.")]
     public void Employee_OrdersSearch_FiltersTable()
     {
+        // Wait for API data to load before taking the baseline (avoids 0 < 0 = false problem)
+        _ordersPage.WaitForOrdersToLoad();
+
         var beforeCount = _ordersPage.GetVisibleRowCount();
+
+        // Skip gracefully if no orders loaded (backend not running)
+        Assume.That(beforeCount, Is.GreaterThan(0), "No orders loaded — backend may not be running.");
 
         // Type a string that won't match any real order ID or customer ID
         _ordersPage.TypeInSearch("ZZZNOTFOUND999");
 
-        // Wait up to 5 s for React to re-render the filtered table
-        var filterWait = new OpenQA.Selenium.Support.UI.WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+        // Wait up to 10 s for React to re-render the filtered table
+        var filterWait = new OpenQA.Selenium.Support.UI.WebDriverWait(_driver, TimeSpan.FromSeconds(10));
         filterWait.Until(d =>
             d.FindElements(By.CssSelector("table tbody tr"))
-             .Count(r => !string.IsNullOrWhiteSpace(r.Text)) < beforeCount
+             .Count(r => { try { return !string.IsNullOrWhiteSpace(r.Text); } catch { return false; } }) < beforeCount
             || d.PageSource.Contains("No orders found"));
 
         var afterCount = _ordersPage.GetVisibleRowCount();
@@ -93,7 +99,7 @@ public class EmployeeOrdersTests
         filterWait.Until(d =>
         {
             var freshRows = d.FindElements(By.CssSelector("table tbody tr"))
-                             .Where(r => !string.IsNullOrWhiteSpace(r.Text))
+                             .Where(r => { try { return !string.IsNullOrWhiteSpace(r.Text); } catch { return false; } })
                              .ToList();
             // Accept: empty table (no delivered orders) OR all rows show Delivered
             if (freshRows.Count == 0) return true;

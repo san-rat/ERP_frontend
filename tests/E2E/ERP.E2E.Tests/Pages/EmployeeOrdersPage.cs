@@ -48,15 +48,44 @@ public sealed class EmployeeOrdersPage
     }
 
     /// <summary>Click the very first row in the orders table.
-    /// Waits for a row with actual text content — skeleton loading rows are excluded.</summary>
+    /// Waits for a row with actual text content — skeleton loading rows are excluded.
+    /// Uses JavaScript click to reliably trigger React's synthetic event handler.</summary>
     public void ClickFirstOrderRow()
     {
-        var row = _wait.Until(d =>
-            d.FindElements(By.CssSelector("table tbody tr"))
-             .FirstOrDefault(r => r.Displayed && !string.IsNullOrWhiteSpace(r.Text)));
-        if (row is null) throw new Exception("No real order rows found (only skeleton rows visible).");
-        row.Click();
+        // Wait until at least one real (non-skeleton) row exists
+        var cell = _wait.Until(d =>
+        {
+            var rows = d.FindElements(By.CssSelector("table tbody tr"));
+            foreach (var r in rows)
+            {
+                try
+                {
+                    if (!r.Displayed || string.IsNullOrWhiteSpace(r.Text)) continue;
+                    var td = r.FindElements(By.TagName("td")).FirstOrDefault(e => e.Displayed);
+                    if (td != null) return td;
+                }
+                catch { /* stale — continue */ }
+            }
+            return null;
+        });
+        if (cell is null) throw new Exception("No real order row cells found.");
+        ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", cell);
         WaitForDrawer();
+    }
+
+    /// <summary>Waits until at least one real order row has loaded (API data received).</summary>
+    public void WaitForOrdersToLoad()
+    {
+        _wait.Until(d =>
+        {
+            try
+            {
+                return d.FindElements(By.CssSelector("table tbody tr"))
+                         .Any(r => { try { return !string.IsNullOrWhiteSpace(r.Text); } catch { return false; } })
+                       || d.PageSource.Contains("No orders found");
+            }
+            catch { return false; }
+        });
     }
 
     // ── Search & Filter ──────────────────────────────────────────────────────

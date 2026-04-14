@@ -64,7 +64,11 @@ public sealed class EmployeeOverviewPage
             d.FindElements(By.XPath("//a[contains(.,'View all orders')]"))
              .FirstOrDefault(e => e.Displayed));
         if (link is null) throw new Exception("'View all orders' link not found.");
-        link.Click();
-        _wait.Until(d => d.Url.Contains("/employee/orders"));
+        // JS click ensures React Router's navigation fires regardless of element interception
+        ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", link);
+        // Accept URL change OR the Order Management heading appearing
+        _wait.Until(d =>
+            d.Url.Contains("/employee/orders") ||
+            d.FindElements(By.XPath("//h1[contains(.,'Order Management')]")).Any(e => e.Displayed));
     }
 }

@@ -90,7 +90,7 @@ public class AdminUsersTests
         filterWait.Until(d =>
         {
             var freshRows = d.FindElements(By.CssSelector("table tbody tr"))
-                             .Where(r => !string.IsNullOrWhiteSpace(r.Text))
+                             .Where(r => { try { return !string.IsNullOrWhiteSpace(r.Text); } catch { return false; } })
                              .ToList();
             // Accept: empty table OR every row mentions "Employee"
             if (freshRows.Count == 0) return true;

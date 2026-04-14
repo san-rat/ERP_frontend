@@ -1,5 +1,6 @@
 using ERP.E2E.Tests.Infrastructure;
 using ERP.E2E.Tests.Pages;
+using OpenQA.Selenium;
 
 namespace ERP.E2E.Tests.Tests;
 

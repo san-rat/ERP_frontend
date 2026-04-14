@@ -37,8 +37,14 @@ public sealed class ManagerAnalyticsPage
     public void WaitForDataLoaded()
     {
         _wait.Until(d =>
-            !d.FindElements(By.CssSelector(".analytics-loading"))
-              .Any(e => e.Displayed));
+        {
+            try
+            {
+                return !d.FindElements(By.CssSelector(".analytics-loading"))
+                          .Any(e => { try { return e.Displayed; } catch { return false; } });
+            }
+            catch { return false; }
+        });
     }
 
     // ── Headings ─────────────────────────────────────────────────────────────
