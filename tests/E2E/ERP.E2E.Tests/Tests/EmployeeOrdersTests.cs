@@ -63,10 +63,16 @@ public class EmployeeOrdersTests
     {
         var beforeCount = _ordersPage.GetVisibleRowCount();
 
-        // Type a random string unlikely to match any real order
+        // Type a string that won't match any real order ID or customer ID
         _ordersPage.TypeInSearch("ZZZNOTFOUND999");
 
-        // Table should be empty (or at least fewer rows than before)
+        // Wait up to 5 s for React to re-render the filtered table
+        var filterWait = new OpenQA.Selenium.Support.UI.WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+        filterWait.Until(d =>
+            d.FindElements(By.CssSelector("table tbody tr"))
+             .Count(r => !string.IsNullOrWhiteSpace(r.Text)) < beforeCount
+            || d.PageSource.Contains("No orders found"));
+
         var afterCount = _ordersPage.GetVisibleRowCount();
         Assert.That(
             afterCount,
@@ -80,23 +86,25 @@ public class EmployeeOrdersTests
     [Description("Selecting 'Delivered' from the status filter shows only DELIVERED orders (or an empty table).")]
     public void Employee_StatusFilter_FiltersByStatus()
     {
-        // Record unfiltered count
-        var allCount = _ordersPage.GetVisibleRowCount();
-
         _ordersPage.SelectStatusFilter("Delivered");
 
-        // Every visible row should contain the DELIVERED badge
-        // If no delivered orders exist the table may be empty — both are acceptable
-        var rows = _driver.FindElements(By.CssSelector("table tbody tr"));
-        foreach (var row in rows)
+        // Wait for React to re-render, then re-query rows fresh to avoid StaleElementReferenceException
+        var filterWait = new OpenQA.Selenium.Support.UI.WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+        filterWait.Until(d =>
         {
-            Assert.That(
-                row.Text,
-                Does.Contain("Delivered").Or.Contain("DELIVERED"),
-                "All visible rows should show DELIVERED status when that filter is selected.");
-        }
+            var freshRows = d.FindElements(By.CssSelector("table tbody tr"))
+                             .Where(r => !string.IsNullOrWhiteSpace(r.Text))
+                             .ToList();
+            // Accept: empty table (no delivered orders) OR all rows show Delivered
+            if (freshRows.Count == 0) return true;
+            return freshRows.All(r =>
+            {
+                try { return r.Text.Contains("Delivered", StringComparison.OrdinalIgnoreCase); }
+                catch { return false; } // stale — keep waiting
+            });
+        });
 
-        Assert.Pass("Status filter applied without errors.");
+        Assert.Pass("Status filter applied and all visible rows are DELIVERED (or table is empty).");
     }
 
     // ── TC-ORD-04 ────────────────────────────────────────────────────────────

@@ -47,13 +47,14 @@ public sealed class EmployeeOrdersPage
         WaitForDrawer();
     }
 
-    /// <summary>Click the very first row in the orders table.</summary>
+    /// <summary>Click the very first row in the orders table.
+    /// Waits for a row with actual text content — skeleton loading rows are excluded.</summary>
     public void ClickFirstOrderRow()
     {
         var row = _wait.Until(d =>
             d.FindElements(By.CssSelector("table tbody tr"))
-             .FirstOrDefault(r => r.Displayed));
-        if (row is null) throw new Exception("No order rows found in the table.");
+             .FirstOrDefault(r => r.Displayed && !string.IsNullOrWhiteSpace(r.Text)));
+        if (row is null) throw new Exception("No real order rows found (only skeleton rows visible).");
         row.Click();
         WaitForDrawer();
     }
@@ -79,8 +80,10 @@ public sealed class EmployeeOrdersPage
         new SelectElement(select).SelectByText(visibleText);
     }
 
+    /// <summary>Count only rows with real content — excludes loading skeleton rows.</summary>
     public int GetVisibleRowCount() =>
-        _driver.FindElements(By.CssSelector("table tbody tr")).Count;
+        _driver.FindElements(By.CssSelector("table tbody tr"))
+               .Count(r => !string.IsNullOrWhiteSpace(r.Text));
 
     // ── Order Detail Drawer ──────────────────────────────────────────────────
 

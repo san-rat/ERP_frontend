@@ -16,4 +16,8 @@
     <PackageReference Include="Selenium.Support"       Version="4.41.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
 </Project>
