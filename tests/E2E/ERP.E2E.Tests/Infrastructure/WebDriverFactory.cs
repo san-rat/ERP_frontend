@@ -9,10 +9,12 @@ public static class WebDriverFactory
     public static IWebDriver Create()
     {
         var options = new ChromeOptions();
-        
-        // Use Brave Browser instead of Chrome
-        options.BinaryLocation = @"c:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe";
-        
+
+        // Use Brave if installed, otherwise fall back to Chrome
+        var bravePath = @"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe";
+        if (File.Exists(bravePath))
+            options.BinaryLocation = bravePath;
+
         options.AddArgument("--window-size=1440,1024");
 
         if (TestSettings.Headless)

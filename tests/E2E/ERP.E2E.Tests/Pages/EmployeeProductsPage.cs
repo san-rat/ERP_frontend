@@ -38,7 +38,12 @@ public sealed class EmployeeProductsPage
 
     public void OpenAddProductModal()
     {
-        _wait.Until(d => d.FindElement(By.XPath("//button[contains(.,'Add Product')]"))).Click();
+        var btn = _wait.Until(d =>
+            d.FindElements(By.XPath("//button[contains(.,'Add Product')]"))
+             .FirstOrDefault(e => e.Displayed && e.Enabled));
+        if (btn is null) throw new Exception("'Add Product' button not found.");
+        ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", btn);
+        ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", btn);
         WaitForModal("New Product");
     }
 

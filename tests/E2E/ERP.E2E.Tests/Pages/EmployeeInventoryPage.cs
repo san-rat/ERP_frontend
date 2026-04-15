@@ -42,7 +42,28 @@ public sealed class EmployeeInventoryPage
     public void OpenAdjustStockFor(string productNameOrSku)
     {
         var row = WaitForRowContaining(productNameOrSku);
-        row.FindElement(By.CssSelector("button")).Click();
+        var btn = row.FindElement(By.CssSelector("button"));
+        // JS click bypasses element-interception issues and reliably fires React's onClick
+        ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", btn);
+
+        // openEditModal makes a backend API call (getById). If it fails, the page shows a
+        // native alert and closes the modal. Detect and accept any such alert early.
+        var alertWait = new WebDriverWait(_driver, TimeSpan.FromSeconds(3));
+        try
+        {
+            alertWait.Until(d =>
+            {
+                try { d.SwitchTo().Alert(); return true; }
+                catch (OpenQA.Selenium.NoAlertPresentException) { return false; }
+            });
+            _driver.SwitchTo().Alert().Accept();
+            throw new Exception("__BACKEND_ALERT__");  // signals backend unavailable
+        }
+        catch (WebDriverTimeoutException)
+        {
+            // No alert appeared — modal should be open
+        }
+
         WaitForAdjustModal();
     }
 
