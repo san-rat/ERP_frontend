@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate, useRouteError } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import LoginPage    from "./pages/LoginPage.jsx";
@@ -65,9 +65,33 @@ const RegisterWrapper = () => {
   return <RegisterPage onRegistered={() => navigate("/login")} onBackToLogin={() => navigate("/login")} />;
 };
 
+const RootErrorBoundary = () => {
+  const error = useRouteError();
+  const navigate = useNavigate();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center', fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--ink)' }}>Oops!</h1>
+      <p style={{ fontSize: '1.25rem', color: 'var(--ink-60)', marginBottom: '1rem' }}>
+        Sorry, an unexpected error has occurred or the page was not found.
+      </p>
+      <p style={{ color: 'var(--error, #e74c3c)', backgroundColor: 'var(--error-surface, #fdf0ed)', padding: '0.75rem 1.5rem', borderRadius: '4px', marginBottom: '2rem' }}>
+        <i>{error?.statusText || error?.message || "Route not found"}</i>
+      </p>
+      <button 
+        onClick={() => navigate("/", { replace: true })}
+        style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+      >
+        Return to Dashboard
+      </button>
+    </div>
+  );
+};
+
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RootErrorBoundary />,
     children: [
       { path: "/", element: <HomeWrapper /> },
       { path: "/login", element: <LoginWrapper /> },
@@ -109,7 +133,7 @@ const router = createBrowserRouter([
             children: [
               { index: true, element: <Navigate to="/manager/analytics" replace /> },
               { path: "analytics", element: <AnalyticsPage /> },
-              { path: "product-analytics", element: <ProductAnalyticsPage /> },
+              { path: "product-analytics", element: <Navigate to="/manager/analytics" replace /> },
               { path: "product-analytics/:productId", element: <ProductAnalyticsPage /> },
               { path: "customer-insights", element: <CustomerInsightsPage /> },
               { path: "customer-insights/:customerId/orders", element: <CustomerOrderHistoryPage /> },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { ArrowLeft, TrendingUp, Calendar, DollarSign, Package, BarChart3, Brain, RotateCcw, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { forecastingClient } from "../../api/forecastingClient";
@@ -9,6 +9,10 @@ import "./ProductAnalyticsPage.css";
 export default function ProductAnalyticsPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+
+  // Guard: if no productId in the URL, redirect before any API calls fire
+  if (!productId) return <Navigate to="/manager/analytics" replace />;
+
   const [data, setData] = useState({ metrics: null, analysis: null, forecast: null, schedule: null });
   const [loading, setLoading] = useState(true);
   const [retraining, setRetraining] = useState(false);
@@ -87,7 +91,7 @@ export default function ProductAnalyticsPage() {
   return (
     <div className="pa-root">
       <div className="pa-container">
-        <button onClick={() => navigate("/analytics")} className="pa-back">
+        <button onClick={() => navigate("/manager/analytics")} className="pa-back">
           <ArrowLeft size={18} /> Back to Analytics
         </button>
 

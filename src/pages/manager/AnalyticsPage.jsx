@@ -154,9 +154,15 @@ export default function AnalyticsPage() {
                     {processedProducts.map((product) => (
                       <tr key={product.productId}>
                         <td className="analytics-td-main">
-                          <Link to={`/analytics/${product.productId}`} className="analytics-product-link">
-                            {product.productName}
-                          </Link>
+                          {product.productId ? (
+                            <Link to={`/manager/product-analytics/${product.productId}`} className="analytics-product-link">
+                              {product.productName}
+                            </Link>
+                          ) : (
+                            <span className="analytics-product-link" style={{ cursor: "default", opacity: 0.5 }} title="Product ID unavailable">
+                              {product.productName}
+                            </span>
+                          )}
                         </td>
                         <td className="analytics-td-mono">{product.sku}</td>
                         <td className="analytics-td-bold">${Number(product.totalRevenue).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>

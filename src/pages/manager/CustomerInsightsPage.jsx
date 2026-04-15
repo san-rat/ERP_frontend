@@ -228,7 +228,7 @@ export default function CustomerInsightsPage() {
                   return (
                     <tr key={id}>
                       <td className="cip-td-mono">
-                        <Link to={`/customer-insights/${id}/orders`} className="cip-customer-link">
+                        <Link to={`/manager/customer-insights/${id}/orders`} className="cip-customer-link">
                           <User size={14} style={{verticalAlign: 'middle', marginRight: '4px'}} />{id}
                         </Link>
                       </td>

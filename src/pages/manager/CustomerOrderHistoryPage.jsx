@@ -73,7 +73,7 @@ export default function CustomerOrderHistoryPage() {
     <div className="coh-root">
       <div className="coh-container">
         <div className="coh-header">
-          <button className="coh-back-btn" onClick={() => navigate("/customer-insights")}>
+          <button className="coh-back-btn" onClick={() => navigate("/manager/customer-insights")}>
             <ArrowLeft size={18} /> Back to Customer Insights
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>

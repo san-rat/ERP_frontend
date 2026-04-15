@@ -103,10 +103,10 @@ export default function HomePage({ user, onLogout }) {
     setActiveNav(label);
     setSidebarOpen(false);
     if (label === "Product Insights") {
-      navigate("/analytics");
+      navigate("/manager/analytics");
     }
     if (label === "Customer Insights") {
-      navigate("/customer-insights");
+      navigate("/manager/customer-insights");
     }
   };
 
@@ -197,8 +197,8 @@ export default function HomePage({ user, onLogout }) {
               <p className="hp-page-sub">Welcome back {user?.email?.split("@")[0] ?? ""}</p>
             </div>
             <div className="hp-page-actions">
-              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
-              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>Customer Insights</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/analytics")}>Product Insights</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/customer-insights")}>Customer Insights</button>
             </div>
           </div>
 
@@ -248,7 +248,7 @@ export default function HomePage({ user, onLogout }) {
           <div className="hp-section-card">
             <div className="hp-section-header">
               <h2 className="hp-section-title">Recent Orders</h2>
-              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>View all</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/customer-insights")}>View all</button>
             </div>
 
             <div className="hp-table-wrap">
