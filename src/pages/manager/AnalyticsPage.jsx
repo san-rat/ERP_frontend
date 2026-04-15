@@ -4,6 +4,7 @@ import { Search, ArrowLeft } from "lucide-react";
 import { forecastingClient } from "../../api/forecastingClient";
 import { ordersClient } from "../../api/ordersClient";
 import { useAuth } from "../../context/AuthContext";
+import AlertsMenu from "../../components/common/AlertsMenu";
 import "./AnalyticsPage.css";
 
 export default function AnalyticsPage() {
@@ -109,8 +110,9 @@ export default function AnalyticsPage() {
           <button className="analytics-back-btn" onClick={() => navigate("/")}>
             <ArrowLeft size={18} /> Back to Dashboard
           </button>
-          <div>
-            <h1>Product Insights</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <h1 style={{ margin: 0 }}>Product Insights</h1>
+            <AlertsMenu />
           </div>
         </div>
 
@@ -152,9 +154,15 @@ export default function AnalyticsPage() {
                     {processedProducts.map((product) => (
                       <tr key={product.productId}>
                         <td className="analytics-td-main">
-                          <Link to={`/analytics/${product.productId}`} className="analytics-product-link">
-                            {product.productName}
-                          </Link>
+                          {product.productId ? (
+                            <Link to={`/manager/product-analytics/${product.productId}`} className="analytics-product-link">
+                              {product.productName}
+                            </Link>
+                          ) : (
+                            <span className="analytics-product-link" style={{ cursor: "default", opacity: 0.5 }} title="Product ID unavailable">
+                              {product.productName}
+                            </span>
+                          )}
                         </td>
                         <td className="analytics-td-mono">{product.sku}</td>
                         <td className="analytics-td-bold">${Number(product.totalRevenue).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>

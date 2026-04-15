@@ -1,5 +1,6 @@
-import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate, useRouteError } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import LoginPage    from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import HomePage     from "./pages/HomePage.jsx";
@@ -13,6 +14,8 @@ import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
 import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
 import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
 import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
+import ManagerRouteGuard from "./components/auth/ManagerRouteGuard.jsx";
+import ManagerLayout from "./layouts/ManagerLayout.jsx";
 import AnalyticsPage from "./pages/manager/AnalyticsPage.jsx";
 import ProductAnalyticsPage from "./pages/manager/ProductAnalyticsPage.jsx";
 import CustomerInsightsPage from "./pages/manager/CustomerInsightsPage.jsx";
@@ -21,7 +24,9 @@ import CustomerOrderHistoryPage from "./pages/manager/CustomerOrderHistoryPage.j
 const RootLayout = () => {
   return (
     <AuthProvider>
-      <Outlet />
+      <NotificationProvider>
+        <Outlet />
+      </NotificationProvider>
     </AuthProvider>
   );
 };
@@ -49,6 +54,7 @@ const LoginWrapper = () => {
     const role = user.role?.toUpperCase();
     if (role === "ADMIN") return <Navigate to="/admin" replace />;
     if (role === "EMPLOYEE") return <Navigate to="/employee/overview" replace />;
+    if (role === "MANAGER") return <Navigate to="/manager/analytics" replace />;
     return <Navigate to="/" replace />;
   }
   return <LoginPage onLogin={login} onRegister={() => navigate("/register")} />;
@@ -59,15 +65,35 @@ const RegisterWrapper = () => {
   return <RegisterPage onRegistered={() => navigate("/login")} onBackToLogin={() => navigate("/login")} />;
 };
 
+const RootErrorBoundary = () => {
+  const error = useRouteError();
+  const navigate = useNavigate();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center', fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--ink)' }}>Oops!</h1>
+      <p style={{ fontSize: '1.25rem', color: 'var(--ink-60)', marginBottom: '1rem' }}>
+        Sorry, an unexpected error has occurred or the page was not found.
+      </p>
+      <p style={{ color: 'var(--error, #e74c3c)', backgroundColor: 'var(--error-surface, #fdf0ed)', padding: '0.75rem 1.5rem', borderRadius: '4px', marginBottom: '2rem' }}>
+        <i>{error?.statusText || error?.message || "Route not found"}</i>
+      </p>
+      <button 
+        onClick={() => navigate("/", { replace: true })}
+        style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+      >
+        Return to Dashboard
+      </button>
+    </div>
+  );
+};
+
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RootErrorBoundary />,
     children: [
       { path: "/", element: <HomeWrapper /> },
-      { path: "/analytics", element: <ProtectedRoute><AnalyticsPage /></ProtectedRoute> },
-      { path: "/analytics/:productId", element: <ProtectedRoute><ProductAnalyticsPage /></ProtectedRoute> },
-      { path: "/customer-insights", element: <ProtectedRoute><CustomerInsightsPage /></ProtectedRoute> },
-      { path: "/customer-insights/:customerId/orders", element: <ProtectedRoute><CustomerOrderHistoryPage /></ProtectedRoute> },
       { path: "/login", element: <LoginWrapper /> },
       { path: "/register", element: <RegisterWrapper /> },
       {
@@ -94,6 +120,24 @@ const router = createBrowserRouter([
               { path: "orders", element: <EmployeeOrdersPage /> },
               { path: "products", element: <EmployeeProductsPage /> },
               { path: "inventory", element: <EmployeeInventoryPage /> }
+            ]
+          }
+        ]
+      },
+      {
+        path: "/manager",
+        element: <ManagerRouteGuard />,
+        children: [
+          {
+            element: <ManagerLayout />,
+            children: [
+              { index: true, element: <Navigate to="/manager/analytics" replace /> },
+              { path: "analytics", element: <AnalyticsPage /> },
+              { path: "product-analytics", element: <Navigate to="/manager/analytics" replace /> },
+              { path: "product-analytics/:productId", element: <ProductAnalyticsPage /> },
+              { path: "customer-insights", element: <CustomerInsightsPage /> },
+              { path: "customer-insights/:customerId/orders", element: <CustomerOrderHistoryPage /> },
+              { path: "order-history", element: <CustomerOrderHistoryPage /> },
             ]
           }
         ]

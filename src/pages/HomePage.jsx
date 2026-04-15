@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { forecastingClient } from "../api/forecastingClient";
 import { ordersClient } from "../api/ordersClient";
+import AlertsMenu from "../components/common/AlertsMenu";
 import "./HomePage.css";
 
 /* ── Navigation items ── */
@@ -102,10 +103,10 @@ export default function HomePage({ user, onLogout }) {
     setActiveNav(label);
     setSidebarOpen(false);
     if (label === "Product Insights") {
-      navigate("/analytics");
+      navigate("/manager/analytics");
     }
     if (label === "Customer Insights") {
-      navigate("/customer-insights");
+      navigate("/manager/customer-insights");
     }
   };
 
@@ -174,10 +175,7 @@ export default function HomePage({ user, onLogout }) {
             </div>
           </div>
           <div className="hp-topbar-right">
-            <button className="hp-topbar-icon" aria-label="Notifications">
-              <Bell size={20} strokeWidth={1.75} />
-              <span className="hp-notif-dot" />
-            </button>
+            <AlertsMenu />
             <div className="hp-user-chip">
               <div className="hp-user-avatar">
                 {user?.email?.[0]?.toUpperCase() ?? "U"}
@@ -199,8 +197,8 @@ export default function HomePage({ user, onLogout }) {
               <p className="hp-page-sub">Welcome back {user?.email?.split("@")[0] ?? ""}</p>
             </div>
             <div className="hp-page-actions">
-              <button className="hp-btn-secondary" onClick={() => navigate("/analytics")}>Product Insights</button>
-              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>Customer Insights</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/analytics")}>Product Insights</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/customer-insights")}>Customer Insights</button>
             </div>
           </div>
 
@@ -250,7 +248,7 @@ export default function HomePage({ user, onLogout }) {
           <div className="hp-section-card">
             <div className="hp-section-header">
               <h2 className="hp-section-title">Recent Orders</h2>
-              <button className="hp-btn-secondary" onClick={() => navigate("/customer-insights")}>View all</button>
+              <button className="hp-btn-secondary" onClick={() => navigate("/manager/customer-insights")}>View all</button>
             </div>
 
             <div className="hp-table-wrap">

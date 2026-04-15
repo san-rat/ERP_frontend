@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 import { ordersClient } from "../../api/ordersClient";
 import { mlClient } from "../../api/mlClient";
 import { useAuth } from "../../context/AuthContext";
+import AlertsMenu from "../../components/common/AlertsMenu";
 import "./CustomerInsightsPage.css";
 
 const STATUS_CLASS = {
@@ -126,7 +127,10 @@ export default function CustomerInsightsPage() {
           <button className="cip-back-btn" onClick={() => navigate("/")}>
             <ArrowLeft size={18} /> Back to Dashboard
           </button>
-          <h1>Customer Insights</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <h1 style={{ margin: 0 }}>Customer Insights</h1>
+            <AlertsMenu />
+          </div>
           <p></p>
           {error && (
             <div className="cip-error-banner">
@@ -224,7 +228,7 @@ export default function CustomerInsightsPage() {
                   return (
                     <tr key={id}>
                       <td className="cip-td-mono">
-                        <Link to={`/customer-insights/${id}/orders`} className="cip-customer-link">
+                        <Link to={`/manager/customer-insights/${id}/orders`} className="cip-customer-link">
                           <User size={14} style={{verticalAlign: 'middle', marginRight: '4px'}} />{id}
                         </Link>
                       </td>

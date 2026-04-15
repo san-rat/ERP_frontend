@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Search, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { ordersClient } from "../../api/ordersClient";
 import { useAuth } from "../../context/AuthContext";
+import AlertsMenu from "../../components/common/AlertsMenu";
 import "./CustomerOrderHistoryPage.css";
 
 const STATUS_CLASS = {
@@ -72,10 +73,13 @@ export default function CustomerOrderHistoryPage() {
     <div className="coh-root">
       <div className="coh-container">
         <div className="coh-header">
-          <button className="coh-back-btn" onClick={() => navigate("/customer-insights")}>
+          <button className="coh-back-btn" onClick={() => navigate("/manager/customer-insights")}>
             <ArrowLeft size={18} /> Back to Customer Insights
           </button>
-          <h1>Order History for <span className="coh-customer-id">{customerId}</span></h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <h1 style={{ margin: 0 }}>Order History for <span className="coh-customer-id">{customerId}</span></h1>
+            <AlertsMenu />
+          </div>
           <p>Detailed transaction history for this customer.</p>
           {error && <div className="coh-error-banner">{error}</div>}
         </div>
