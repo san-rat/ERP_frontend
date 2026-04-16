@@ -34,6 +34,7 @@ export default function CustomerInsightsPage() {
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  const [analysisError, setAnalysisError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -71,18 +72,29 @@ export default function CustomerInsightsPage() {
 
   const runChurnAnalysis = async () => {
     setAnalyzing(true);
+    setAnalysisError(null);
     const newPredictions = { ...churnPredictions };
     try {
-      // Parallel fetch for all unique customers
-      await Promise.allSettled(uniqueCustomerIds.map(async (id) => {
+      const results = await Promise.allSettled(uniqueCustomerIds.map(async (id) => {
         if (!newPredictions[id]) {
           const res = await mlClient.getChurnPrediction(id);
           if (res) newPredictions[id] = res;
         }
       }));
+
+      const failedCount = results.filter(result => result.status === "rejected").length;
       setChurnPredictions(newPredictions);
+
+      if (failedCount > 0) {
+        setAnalysisError(
+          failedCount === uniqueCustomerIds.length
+            ? "Churn analysis could not reach the prediction service."
+            : `Churn analysis completed with ${failedCount} failed request${failedCount === 1 ? "" : "s"}.`
+        );
+      }
     } catch (err) {
       console.error("Churn analysis failed:", err);
+      setAnalysisError("Churn analysis failed unexpectedly.");
     } finally {
       setAnalyzing(false);
     }
@@ -138,6 +150,7 @@ export default function CustomerInsightsPage() {
               {error.includes("expired") && <button onClick={logout} className="cip-inline-link">Log out now</button>}
             </div>
           )}
+          {analysisError && <div className="cip-error-banner">{analysisError}</div>}
         </div>
 
         <div className="cip-stats-row">

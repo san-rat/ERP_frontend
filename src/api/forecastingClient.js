@@ -25,7 +25,7 @@ export const forecastingClient = {
         forecastDays: days,
         algorithm: "Prophet",
         includeConfidenceInterval: true,
-        confidenceLevel: 0.95,
+        confidenceLevel: 95,
       }),
     }),
 
