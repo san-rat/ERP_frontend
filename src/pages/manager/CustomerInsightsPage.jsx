@@ -30,8 +30,16 @@ export default function CustomerInsightsPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [orders, setOrders] = useState([]);
-  const [churnPredictions, setChurnPredictions] = useState({});
-  const [totalCustomers, setTotalCustomers] = useState(null);
+  const [churnPredictions, setChurnPredictions] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem("erp_churn_predictions");
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
+  const [totalCustomers, setTotalCustomers] = useState(() => {
+    const stored = sessionStorage.getItem("erp_total_customers");
+    return stored !== null ? Number(stored) : null;
+  });
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
@@ -83,6 +91,8 @@ export default function CustomerInsightsPage() {
         });
         setChurnPredictions(newPredictions);
         setTotalCustomers(response.totalCustomers);
+        sessionStorage.setItem("erp_churn_predictions", JSON.stringify(newPredictions));
+        sessionStorage.setItem("erp_total_customers", response.totalCustomers);
         if (response.failedCount > 0) {
           setAnalysisError(
             response.failedCount === response.totalCustomers
