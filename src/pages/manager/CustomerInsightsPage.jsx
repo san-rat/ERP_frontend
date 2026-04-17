@@ -31,6 +31,7 @@ export default function CustomerInsightsPage() {
   const { logout } = useAuth();
   const [orders, setOrders] = useState([]);
   const [churnPredictions, setChurnPredictions] = useState({});
+  const [totalCustomers, setTotalCustomers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
@@ -81,6 +82,7 @@ export default function CustomerInsightsPage() {
           newPredictions[pred.customerId] = pred;
         });
         setChurnPredictions(newPredictions);
+        setTotalCustomers(response.totalCustomers);
         if (response.failedCount > 0) {
           setAnalysisError(
             response.failedCount === response.totalCustomers
@@ -157,7 +159,7 @@ export default function CustomerInsightsPage() {
           </div>
           <div className="cip-stat-card">
             <label>Unique Customers</label>
-            <h3>{new Set(orders.map(o => o.customerId)).size}</h3>
+            <h3>{totalCustomers !== null ? totalCustomers : "--"}</h3>
           </div>
         </div>
 
