@@ -48,6 +48,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     sessionStorage.removeItem("erp_token");
     sessionStorage.removeItem("erp_user");
+    sessionStorage.removeItem("erp_churn_predictions");
+    sessionStorage.removeItem("erp_total_customers");
+    sessionStorage.removeItem("erp_all_forecasts");
     setUser(null);
     navigate("/login");
   };

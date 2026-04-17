@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Calendar, DollarSign, Package, BarChart3, Brain, RotateCcw, Clock } from "lucide-react";
+import { useParams, useNavigate, Navigate, Link } from "react-router-dom";
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Calendar, DollarSign, Package, BarChart3, ShoppingCart, Tag, Hash } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { forecastingClient } from "../../api/forecastingClient";
 import AlertsMenu from "../../components/common/AlertsMenu";
@@ -15,7 +15,6 @@ export default function ProductAnalyticsPage() {
 
   const [data, setData] = useState({ metrics: null, analysis: null, forecast: null, schedule: null });
   const [loading, setLoading] = useState(true);
-  const [retraining, setRetraining] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,20 +27,36 @@ export default function ProductAnalyticsPage() {
           forecastingClient.getSingleProductMetrics(productId),
           forecastingClient.getSingleProductAnalysis(productId),
           forecastingClient.getLatestForecast(productId),
-          forecastingClient.getRetrainingSchedule()
         ]);
 
-        const [mRes, aRes, fRes, sRes] = results;
+        const [mRes, aRes, fRes] = results;
 
         if (mRes.status === 'rejected' && aRes.status === 'rejected') {
           throw new Error("Product data unavailable.");
         }
 
-        setData({ 
-          metrics: mRes.status === 'fulfilled' ? mRes.value : null, 
+        // Prefer cached bulk forecast from sessionStorage over per-product API result
+        let forecast = fRes.status === 'fulfilled' ? fRes.value : null;
+        try {
+          const stored = sessionStorage.getItem("erp_all_forecasts");
+          if (stored) {
+            const allForecasts = JSON.parse(stored);
+            const cached = allForecasts[productId];
+            if (cached) {
+              forecast = {
+                algorithm: cached.algorithm,
+                accuracy: cached.accuracy,
+                forecasts: cached.next30Days,
+              };
+            }
+          }
+        } catch { /* ignore parse errors */ }
+
+        setData({
+          metrics: mRes.status === 'fulfilled' ? mRes.value : null,
           analysis: aRes.status === 'fulfilled' ? aRes.value : null,
-          forecast: fRes.status === 'fulfilled' ? fRes.value : null,
-          schedule: sRes.status === 'fulfilled' ? sRes.value : null
+          forecast,
+          schedule: null
         });
       } catch (err) {
         setError("Failed to load product intelligence data.");
@@ -55,8 +70,20 @@ export default function ProductAnalyticsPage() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const newForecast = await forecastingClient.generateForecast(productId);
-      setData(prev => ({ ...prev, forecast: newForecast }));
+      await forecastingClient.retrainModel();
+      const response = await forecastingClient.getAllForecasts();
+      if (response?.results) {
+        const byProductId = {};
+        response.results.forEach(r => { byProductId[r.productId] = r; });
+        sessionStorage.setItem("erp_all_forecasts", JSON.stringify(byProductId));
+        const cached = byProductId[productId];
+        if (cached) {
+          setData(prev => ({
+            ...prev,
+            forecast: { algorithm: cached.algorithm, accuracy: cached.accuracy, forecasts: cached.next30Days },
+          }));
+        }
+      }
     } catch (err) {
       alert("Failed to generate forecast. Please ensure the service is running.");
     } finally {
@@ -64,19 +91,6 @@ export default function ProductAnalyticsPage() {
     }
   };
 
-  const handleRetrain = async () => {
-    setRetraining(true);
-    try {
-      await forecastingClient.retrainModel();
-      // Refresh data after retraining
-      const newForecast = await forecastingClient.generateForecast(productId);
-      setData(prev => ({ ...prev, forecast: newForecast }));
-    } catch (err) {
-      alert("Model retraining initiated. Please refresh in a few minutes.");
-    } finally {
-      setRetraining(false);
-    }
-  };
 
   if (loading) return <div className="pa-loading">Analyzing product data...</div>;
   if (error) return <div className="pa-error">{error}</div>;
@@ -135,11 +149,69 @@ export default function ProductAnalyticsPage() {
             </div>
           </div>
 
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap"><Tag size={20} /></div>
+            <div className="pa-stat-info">
+              <label>Current Price</label>
+              <h3>${metrics?.currentPrice?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
+          </div>
+
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap"><DollarSign size={20} /></div>
+            <div className="pa-stat-info">
+              <label>Avg Unit Price</label>
+              <h3>${metrics?.avgUnitPrice?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
+          </div>
+
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap"><ShoppingCart size={20} /></div>
+            <div className="pa-stat-info">
+              <label>Order Count</label>
+              <h3>{metrics?.orderCount}</h3>
+            </div>
+          </div>
+
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap">
+              {metrics?.trendDirection === 1
+                ? <TrendingUp size={20} style={{ color: '#2e7d52' }} />
+                : metrics?.trendDirection === -1
+                  ? <TrendingDown size={20} style={{ color: '#c0392b' }} />
+                  : <Minus size={20} style={{ color: '#9a6a00' }} />}
+            </div>
+            <div className="pa-stat-info">
+              <label>Trend</label>
+              <h3 style={{ color: metrics?.trendDirection === 1 ? '#2e7d52' : metrics?.trendDirection === -1 ? '#c0392b' : '#9a6a00' }}>
+                {metrics?.trendDirection === 1 ? 'Upward' : metrics?.trendDirection === -1 ? 'Downward' : 'Stable'}
+              </h3>
+            </div>
+          </div>
+
+
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap"><BarChart3 size={20} /></div>
+            <div className="pa-stat-info">
+              <label>Seasonality</label>
+              <h3>{analysis?.seasonalPattern?.replace(/_/g, ' ') || '—'}</h3>
+              <span className="pa-stat-sub">Index: {metrics?.seasonalityIndex?.toFixed(4)}</span>
+            </div>
+          </div>
+
+          <div className="pa-card pa-stat-card">
+            <div className="pa-icon-wrap"><Hash size={20} /></div>
+            <div className="pa-stat-info">
+              <label>Volatility</label>
+              <h3>{(metrics?.volatility * 100).toFixed(1)}%</h3>
+              <span className="pa-stat-sub">Std dev: {analysis?.standardDeviation?.toFixed(2)}</span>
+            </div>
+          </div>
+
           {/* Forecast Chart Section */}
           <section className="pa-card pa-chart-section">
             <div className="pa-card-header">
               <h2>30-Day Unit Demand Forecast</h2>
-              <span className="pa-algo-tag">Algorithm: {forecast?.algorithm || 'Prophet'}</span>
             </div>
             <div className="pa-chart-container">
               {chartData.length > 0 ? (
@@ -158,57 +230,14 @@ export default function ProductAnalyticsPage() {
                 <div className="pa-no-data">
                   <p>No forecast data available for this product yet.</p>
                   <button className="pa-generate-btn" onClick={handleGenerate} disabled={generating}>
-                    {generating ? 'Generating...' : 'Generate Initial Forecast'}
+                    {generating ? 'Retraining & Generating...' : 'Retrain & Generate Forecasts'}
                   </button>
                 </div>
               )}
             </div>
           </section>
 
-          {/* Retraining Control Card */}
-          <section className="pa-card pa-retrain-card">
-            <div className="pa-retrain-info">
-              <div className="pa-icon-wrap"><Brain size={20} /></div>
-              <div>
-                <h2>AI Model Lifecycle</h2>
-                <div className="pa-retrain-dates">
-                  <span title="Last Generated At"><Clock size={14} /> Last Trained: {forecast?.generatedAt ? new Date(forecast.generatedAt).toLocaleString() : 'Never'}</span>
-                  <span><Calendar size={14} /> Next Scheduled: {data.schedule?.nextScheduledRetrain ? new Date(data.schedule.nextScheduledRetrain).toLocaleDateString() : 'Weekly Sync'}</span>
-                </div>
-              </div>
-            </div>
-            <button 
-              className={`pa-retrain-btn ${retraining ? 'loading' : ''}`} 
-              onClick={handleRetrain}
-              disabled={retraining}
-            >
-              <RotateCcw size={16} /> {retraining ? 'Processing...' : 'Retrain Model'}
-            </button>
-          </section>
 
-          {/* Intelligence Section */}
-          <section className="pa-intelligence-section">
-            <h2>Sales Intelligence</h2>
-            <div className="pa-intel-grid">
-              <div className="pa-intel-card">
-                <label>Growth Rate</label>
-                <div className={`pa-value ${analysis?.growthRate > 0 ? 'pos' : ''}`}>
-                  {analysis?.growthRate > 0 && '+'}{(analysis?.growthRate * 100).toFixed(1)}%
-                </div>
-                <p>Period-over-period performance</p>
-              </div>
-              <div className="pa-intel-card">
-                <label>Seasonality</label>
-                <div className="pa-value">{analysis?.seasonalPattern?.replace('_', ' ')}</div>
-                <p>Based on index: {metrics?.seasonalityIndex}</p>
-              </div>
-              <div className="pa-intel-card">
-                <label>Volatility</label>
-                <div className="pa-value">{(metrics?.volatility * 100).toFixed(1)}%</div>
-                <p>Standard deviation: {analysis?.standardDeviation}</p>
-              </div>
-            </div>
-          </section>
 
           {/* Timeline Section */}
           <section className="pa-card pa-timeline-card">
@@ -230,6 +259,15 @@ export default function ProductAnalyticsPage() {
               </div>
             </div>
           </section>
+        </div>
+
+        <div style={{ marginTop: "2rem", textAlign: "center", paddingTop: "1.5rem", borderTop: "1px solid var(--ink-10)" }}>
+          <Link
+            to="/manager/about/forecast"
+            style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}
+          >
+            How does the sales forecast model work? →
+          </Link>
         </div>
       </div>
     </div>

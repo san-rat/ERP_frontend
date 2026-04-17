@@ -1,0 +1,11 @@
+.ml-bell-wrap button {
+  color: rgba(245, 239, 231, 0.7) !important;
+}
+.ml-bell-wrap button:hover {
+  color: rgba(245, 239, 231, 1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+/* Badge border should match dark topbar */
+.ml-bell-wrap button span {
+  border-color: var(--ink) !important;
+}

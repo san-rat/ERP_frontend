@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, RefreshCw } from "lucide-react";
 import { forecastingClient } from "../../api/forecastingClient";
 import { ordersClient } from "../../api/ordersClient";
 import { useAuth } from "../../context/AuthContext";
@@ -18,6 +18,25 @@ export default function AnalyticsPage() {
   const [orderError, setOrderError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "totalRevenue", direction: "desc" });
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
+
+  const handleGenerateAllForecasts = async () => {
+    setGenerating(true);
+    setGenerateError(null);
+    try {
+      const response = await forecastingClient.getAllForecasts();
+      if (response?.results) {
+        const byProductId = {};
+        response.results.forEach(r => { byProductId[r.productId] = r; });
+        sessionStorage.setItem("erp_all_forecasts", JSON.stringify(byProductId));
+      }
+    } catch (err) {
+      setGenerateError("Failed to generate forecasts. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -114,6 +133,17 @@ export default function AnalyticsPage() {
             <h1 style={{ margin: 0 }}>Product Insights</h1>
             <AlertsMenu />
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
+            <button
+              className="analytics-generate-btn"
+              onClick={handleGenerateAllForecasts}
+              disabled={generating}
+            >
+              <RefreshCw size={15} className={generating ? "analytics-spin" : ""} />
+              {generating ? "Generating..." : "Retrain & Generate All Forecasts"}
+            </button>
+            {generateError && <span className="analytics-error-text">{generateError}</span>}
+          </div>
         </div>
 
         <div className="analytics-grid">
@@ -179,6 +209,15 @@ export default function AnalyticsPage() {
             )}
           </section>
         </div>
+      </div>
+
+      <div style={{ marginTop: "2rem", textAlign: "center", paddingTop: "1.5rem", borderTop: "1px solid var(--ink-10)" }}>
+        <Link
+          to="/manager/about/forecast"
+          style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}
+        >
+          How does the sales forecast model work? →
+        </Link>
       </div>
     </div>
   );

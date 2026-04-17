@@ -30,10 +30,20 @@ export default function CustomerInsightsPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [orders, setOrders] = useState([]);
-  const [churnPredictions, setChurnPredictions] = useState({});
+  const [churnPredictions, setChurnPredictions] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem("erp_churn_predictions");
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
+  const [totalCustomers, setTotalCustomers] = useState(() => {
+    const stored = sessionStorage.getItem("erp_total_customers");
+    return stored !== null ? Number(stored) : null;
+  });
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  const [analysisError, setAnalysisError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -71,18 +81,30 @@ export default function CustomerInsightsPage() {
 
   const runChurnAnalysis = async () => {
     setAnalyzing(true);
-    const newPredictions = { ...churnPredictions };
+    setAnalysisError(null);
     try {
-      // Parallel fetch for all unique customers
-      await Promise.allSettled(uniqueCustomerIds.map(async (id) => {
-        if (!newPredictions[id]) {
-          const res = await mlClient.getChurnPrediction(id);
-          if (res) newPredictions[id] = res;
+      await mlClient.retrain();
+      const response = await mlClient.predictAll();
+      if (response?.results) {
+        const newPredictions = {};
+        response.results.forEach(pred => {
+          newPredictions[pred.customerId] = pred;
+        });
+        setChurnPredictions(newPredictions);
+        setTotalCustomers(response.totalCustomers);
+        sessionStorage.setItem("erp_churn_predictions", JSON.stringify(newPredictions));
+        sessionStorage.setItem("erp_total_customers", response.totalCustomers);
+        if (response.failedCount > 0) {
+          setAnalysisError(
+            response.failedCount === response.totalCustomers
+              ? "Churn analysis could not reach the prediction service."
+              : `Churn analysis completed with ${response.failedCount} failed prediction${response.failedCount === 1 ? "" : "s"}.`
+          );
         }
-      }));
-      setChurnPredictions(newPredictions);
+      }
     } catch (err) {
       console.error("Churn analysis failed:", err);
+      setAnalysisError("Churn analysis failed unexpectedly.");
     } finally {
       setAnalyzing(false);
     }
@@ -92,10 +114,10 @@ export default function CustomerInsightsPage() {
   const riskStats = useMemo(() => {
     const counts = { low: 0, medium: 0, high: 0 };
     Object.values(churnPredictions).forEach(pred => {
-      const p = pred.churnProbability;
-      if (p < 0.5) counts.low++;
-      else if (p === 0.5) counts.medium++;
-      else counts.high++;
+      const label = pred.churnRiskLabel?.toUpperCase();
+      if (label === "HIGH" || label === "CRITICAL") counts.high++;
+      else if (label === "MEDIUM") counts.medium++;
+      else counts.low++;
     });
     return counts;
   }, [churnPredictions]);
@@ -138,6 +160,7 @@ export default function CustomerInsightsPage() {
               {error.includes("expired") && <button onClick={logout} className="cip-inline-link">Log out now</button>}
             </div>
           )}
+          {analysisError && <div className="cip-error-banner">{analysisError}</div>}
         </div>
 
         <div className="cip-stats-row">
@@ -147,7 +170,7 @@ export default function CustomerInsightsPage() {
           </div>
           <div className="cip-stat-card">
             <label>Unique Customers</label>
-            <h3>{new Set(orders.map(o => o.customerId)).size}</h3>
+            <h3>{totalCustomers !== null ? totalCustomers : "--"}</h3>
           </div>
         </div>
 
@@ -317,6 +340,15 @@ export default function CustomerInsightsPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div style={{ marginTop: "2rem", textAlign: "center", paddingTop: "1.5rem", borderTop: "1px solid var(--ink-10)" }}>
+        <Link
+          to="/manager/about/churn"
+          style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}
+        >
+          How does the churn prediction model work? →
+        </Link>
       </div>
     </div>
   );

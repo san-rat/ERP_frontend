@@ -74,7 +74,10 @@ export default function HomePage({ user, onLogout }) {
         // Calculate Customers from Orders
         if (ordersRes.status === 'fulfilled') {
           orders = ordersRes.value || [];
-          customers = new Set(orders.map(o => o.customerId)).size;
+          const storedCustomers = sessionStorage.getItem("erp_total_customers");
+          customers = storedCustomers !== null
+            ? Number(storedCustomers)
+            : new Set(orders.map(o => o.customerId)).size;
         }
 
         // Calculate Active Orders from Summary
