@@ -341,6 +341,15 @@ export default function CustomerInsightsPage() {
           )}
         </div>
       </div>
+
+      <div style={{ marginTop: "2rem", textAlign: "center", paddingTop: "1.5rem", borderTop: "1px solid var(--ink-10)" }}>
+        <Link
+          to="/manager/about/churn"
+          style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}
+        >
+          How does the churn prediction model work? →
+        </Link>
+      </div>
     </div>
   );
 }

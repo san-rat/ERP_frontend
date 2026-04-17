@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate, Link } from "react-router-dom";
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Calendar, DollarSign, Package, BarChart3, ShoppingCart, Tag, Hash } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { forecastingClient } from "../../api/forecastingClient";
@@ -259,6 +259,15 @@ export default function ProductAnalyticsPage() {
               </div>
             </div>
           </section>
+        </div>
+
+        <div style={{ marginTop: "2rem", textAlign: "center", paddingTop: "1.5rem", borderTop: "1px solid var(--ink-10)" }}>
+          <Link
+            to="/manager/about/forecast"
+            style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}
+          >
+            How does the sales forecast model work? →
+          </Link>
         </div>
       </div>
     </div>

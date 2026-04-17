@@ -20,6 +20,8 @@ import AnalyticsPage from "./pages/manager/AnalyticsPage.jsx";
 import ProductAnalyticsPage from "./pages/manager/ProductAnalyticsPage.jsx";
 import CustomerInsightsPage from "./pages/manager/CustomerInsightsPage.jsx";
 import CustomerOrderHistoryPage from "./pages/manager/CustomerOrderHistoryPage.jsx";
+import ChurnInfoPage from "./pages/manager/ChurnInfoPage.jsx";
+import ForecastInfoPage from "./pages/manager/ForecastInfoPage.jsx";
 
 const RootLayout = () => {
   return (
@@ -138,6 +140,8 @@ const router = createBrowserRouter([
               { path: "customer-insights", element: <CustomerInsightsPage /> },
               { path: "customer-insights/:customerId/orders", element: <CustomerOrderHistoryPage /> },
               { path: "order-history", element: <CustomerOrderHistoryPage /> },
+              { path: "about/churn", element: <ChurnInfoPage /> },
+              { path: "about/forecast", element: <ForecastInfoPage /> },
             ]
           }
         ]
