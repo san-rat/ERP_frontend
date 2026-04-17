@@ -29,13 +29,13 @@ export const forecastingClient = {
       }),
     }),
 
-  // Global retraining endpoints — backend does not have product-specific routes.
-  // RetrainingController.cs: POST /api/forecasting/retraining/trigger
   retrainModel: () =>
-    fetchWithAuth(`${FORECASTING_API_BASE}/retraining/trigger`, {
+    fetchWithAuth(`${FORECASTING_API_BASE}/ml/retrain`, {
       method: "POST",
-      body: JSON.stringify({ reason: "Manual retraining from manager dashboard" }),
     }),
+
+  getAllForecasts: () =>
+    fetchWithAuth(`${FORECASTING_API_BASE}/products`),
 
   // RetrainingController.cs: GET /api/forecasting/retraining/status
   getRetrainingSchedule: () =>

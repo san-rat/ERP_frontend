@@ -12,4 +12,8 @@ export const mlClient = {
     fetchWithAuth(`${ML_API_BASE}/churn/predict-all`, {
       method: "POST",
     }),
+  retrain: () =>
+    fetchWithAuth(`${ML_API_BASE}/retrain`, {
+      method: "POST",
+    }),
 };

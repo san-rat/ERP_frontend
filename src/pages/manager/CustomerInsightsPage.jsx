@@ -83,6 +83,7 @@ export default function CustomerInsightsPage() {
     setAnalyzing(true);
     setAnalysisError(null);
     try {
+      await mlClient.retrain();
       const response = await mlClient.predictAll();
       if (response?.results) {
         const newPredictions = {};

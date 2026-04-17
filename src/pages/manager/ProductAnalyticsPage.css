@@ -96,6 +96,7 @@
 
 .pa-stat-info label { font-size: 0.8rem; color: var(--ink-60); font-weight: 500; display: block; margin-bottom: 0.25rem; }
 .pa-stat-info h3 { font-size: 1.5rem; margin: 0; color: var(--ink); }
+.pa-stat-sub { font-size: 0.75rem; color: var(--ink-60); margin-top: 0.2rem; display: block; }
 
 .pa-intelligence-section, .pa-timeline-card, .pa-chart-section { grid-column: span 3; }
 .pa-intelligence-section h2, .pa-timeline-card h2 { font-size: 1.1rem; margin: 0 0 1rem; }
