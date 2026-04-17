@@ -73,24 +73,21 @@ export default function CustomerInsightsPage() {
   const runChurnAnalysis = async () => {
     setAnalyzing(true);
     setAnalysisError(null);
-    const newPredictions = { ...churnPredictions };
     try {
-      const results = await Promise.allSettled(uniqueCustomerIds.map(async (id) => {
-        if (!newPredictions[id]) {
-          const res = await mlClient.getChurnPrediction(id);
-          if (res) newPredictions[id] = res;
+      const response = await mlClient.predictAll();
+      if (response?.results) {
+        const newPredictions = {};
+        response.results.forEach(pred => {
+          newPredictions[pred.customerId] = pred;
+        });
+        setChurnPredictions(newPredictions);
+        if (response.failedCount > 0) {
+          setAnalysisError(
+            response.failedCount === response.totalCustomers
+              ? "Churn analysis could not reach the prediction service."
+              : `Churn analysis completed with ${response.failedCount} failed prediction${response.failedCount === 1 ? "" : "s"}.`
+          );
         }
-      }));
-
-      const failedCount = results.filter(result => result.status === "rejected").length;
-      setChurnPredictions(newPredictions);
-
-      if (failedCount > 0) {
-        setAnalysisError(
-          failedCount === uniqueCustomerIds.length
-            ? "Churn analysis could not reach the prediction service."
-            : `Churn analysis completed with ${failedCount} failed request${failedCount === 1 ? "" : "s"}.`
-        );
       }
     } catch (err) {
       console.error("Churn analysis failed:", err);
@@ -104,10 +101,10 @@ export default function CustomerInsightsPage() {
   const riskStats = useMemo(() => {
     const counts = { low: 0, medium: 0, high: 0 };
     Object.values(churnPredictions).forEach(pred => {
-      const p = pred.churnProbability;
-      if (p < 0.5) counts.low++;
-      else if (p === 0.5) counts.medium++;
-      else counts.high++;
+      const label = pred.churnRiskLabel?.toUpperCase();
+      if (label === "HIGH" || label === "CRITICAL") counts.high++;
+      else if (label === "MEDIUM") counts.medium++;
+      else counts.low++;
     });
     return counts;
   }, [churnPredictions]);

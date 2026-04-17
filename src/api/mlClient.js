@@ -8,4 +8,8 @@ export const mlClient = {
       method: "POST",
       body: JSON.stringify({ customerId }),
     }),
+  predictAll: () =>
+    fetchWithAuth(`${ML_API_BASE}/churn/predict-all`, {
+      method: "POST",
+    }),
 };

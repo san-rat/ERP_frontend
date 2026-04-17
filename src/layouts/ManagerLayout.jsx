@@ -3,7 +3,7 @@ import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   Menu, X, LogOut,
-  BarChart2, Users, ShoppingBag,
+  BarChart2, Users,
   Briefcase
 } from "lucide-react";
 import NotificationPanel from "../components/common/NotificationPanel";
@@ -11,7 +11,6 @@ import NotificationPanel from "../components/common/NotificationPanel";
 const NAV_ITEMS = [
   { icon: BarChart2,   label: "Analytics",        path: "/manager/analytics" },
   { icon: Users,       label: "Customer Insights", path: "/manager/customer-insights" },
-  { icon: ShoppingBag, label: "Order History",     path: "/manager/order-history" },
 ];
 
 export default function ManagerLayout() {
