@@ -3,7 +3,7 @@ import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { authApi } from "../api/client";
 import "./RegisterPage.css";
 
-const ROLES = ["Admin", "Manager", "Employee", "Customer"];
+const ROLES = ["Admin", "Manager", "Employee"];
 
 export default function RegisterPage({ onRegistered, onBackToLogin }) {
   const [form, setForm] = useState({

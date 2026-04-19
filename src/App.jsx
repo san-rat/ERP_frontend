@@ -1,37 +1,155 @@
-import { useState } from "react";
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate, Navigate, useRouteError } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import LoginPage    from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
-import LoadingPage  from "./pages/LoadingPage.jsx";
 import HomePage     from "./pages/HomePage.jsx";
+import AdminRouteGuard from "./components/auth/AdminRouteGuard.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
+import AdminUsersPage from "./pages/admin/AdminUsersPage.jsx";
+import EmployeeRouteGuard from "./components/auth/EmployeeRouteGuard.jsx";
+import EmployeeLayout from "./layouts/EmployeeLayout.jsx";
+import EmployeeOverviewPage from "./pages/employee/EmployeeOverviewPage.jsx";
+import EmployeeOrdersPage from "./pages/employee/EmployeeOrdersPage.jsx";
+import EmployeeProductsPage from "./pages/employee/EmployeeProductsPage.jsx";
+import EmployeeInventoryPage from "./pages/employee/EmployeeInventoryPage.jsx";
+import ManagerRouteGuard from "./components/auth/ManagerRouteGuard.jsx";
+import ManagerLayout from "./layouts/ManagerLayout.jsx";
+import AnalyticsPage from "./pages/manager/AnalyticsPage.jsx";
+import ProductAnalyticsPage from "./pages/manager/ProductAnalyticsPage.jsx";
+import CustomerInsightsPage from "./pages/manager/CustomerInsightsPage.jsx";
+import CustomerOrderHistoryPage from "./pages/manager/CustomerOrderHistoryPage.jsx";
+import ChurnInfoPage from "./pages/manager/ChurnInfoPage.jsx";
+import ForecastInfoPage from "./pages/manager/ForecastInfoPage.jsx";
 
-// screen: "login" | "register" | "loading" | "home"
-export default function App() {
-  const [screen, setScreen] = useState("login");
-  const [user,   setUser]   = useState(null);
-
-  const handleLogin = (userData) => {
-    setUser(userData);
-    setScreen("loading");
-    setTimeout(() => setScreen("home"), 2400);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setScreen("login");
-  };
-
-  if (screen === "loading")  return <LoadingPage />;
-  if (screen === "home")     return <HomePage user={user} onLogout={handleLogout} />;
-  if (screen === "register") return (
-    <RegisterPage
-      onRegistered={() => setScreen("login")}
-      onBackToLogin={() => setScreen("login")}
-    />
-  );
+const RootLayout = () => {
   return (
-    <LoginPage
-      onLogin={handleLogin}
-      onRegister={() => setScreen("register")}
-    />
+    <AuthProvider>
+      <NotificationProvider>
+        <Outlet />
+      </NotificationProvider>
+    </AuthProvider>
   );
+};
+
+// --- Route Wrappers ---
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? children : <Navigate to="/login" replace />;
+};
+
+const HomeWrapper = () => {
+  const { user, logout } = useAuth();
+  return (
+    <ProtectedRoute>
+      <HomePage user={user} onLogout={logout} />
+    </ProtectedRoute>
+  );
+};
+
+const LoginWrapper = () => {
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
+  if (user) {
+    const role = user.role?.toUpperCase();
+    if (role === "ADMIN") return <Navigate to="/admin" replace />;
+    if (role === "EMPLOYEE") return <Navigate to="/employee/overview" replace />;
+    if (role === "MANAGER") return <Navigate to="/manager/analytics" replace />;
+    return <Navigate to="/" replace />;
+  }
+  return <LoginPage onLogin={login} onRegister={() => navigate("/register")} />;
+};
+
+const RegisterWrapper = () => {
+  const navigate = useNavigate();
+  return <RegisterPage onRegistered={() => navigate("/login")} onBackToLogin={() => navigate("/login")} />;
+};
+
+const RootErrorBoundary = () => {
+  const error = useRouteError();
+  const navigate = useNavigate();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center', fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--ink)' }}>Oops!</h1>
+      <p style={{ fontSize: '1.25rem', color: 'var(--ink-60)', marginBottom: '1rem' }}>
+        Sorry, an unexpected error has occurred or the page was not found.
+      </p>
+      <p style={{ color: 'var(--error, #e74c3c)', backgroundColor: 'var(--error-surface, #fdf0ed)', padding: '0.75rem 1.5rem', borderRadius: '4px', marginBottom: '2rem' }}>
+        <i>{error?.statusText || error?.message || "Route not found"}</i>
+      </p>
+      <button 
+        onClick={() => navigate("/", { replace: true })}
+        style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+      >
+        Return to Dashboard
+      </button>
+    </div>
+  );
+};
+
+const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    errorElement: <RootErrorBoundary />,
+    children: [
+      { path: "/", element: <HomeWrapper /> },
+      { path: "/login", element: <LoginWrapper /> },
+      { path: "/register", element: <RegisterWrapper /> },
+      {
+        path: "/admin",
+        element: <AdminRouteGuard />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              { index: true, element: <AdminDashboardPage /> },
+              { path: "users", element: <AdminUsersPage /> }
+            ]
+          }
+        ]
+      },
+      {
+        path: "/employee",
+        element: <EmployeeRouteGuard />,
+        children: [
+          {
+            element: <EmployeeLayout />,
+            children: [
+              { path: "overview", element: <EmployeeOverviewPage /> },
+              { path: "orders", element: <EmployeeOrdersPage /> },
+              { path: "products", element: <EmployeeProductsPage /> },
+              { path: "inventory", element: <EmployeeInventoryPage /> }
+            ]
+          }
+        ]
+      },
+      {
+        path: "/manager",
+        element: <ManagerRouteGuard />,
+        children: [
+          {
+            element: <ManagerLayout />,
+            children: [
+              { index: true, element: <Navigate to="/manager/analytics" replace /> },
+              { path: "analytics", element: <AnalyticsPage /> },
+              { path: "product-analytics", element: <Navigate to="/manager/analytics" replace /> },
+              { path: "product-analytics/:productId", element: <ProductAnalyticsPage /> },
+              { path: "customer-insights", element: <CustomerInsightsPage /> },
+              { path: "customer-insights/:customerId/orders", element: <CustomerOrderHistoryPage /> },
+              { path: "order-history", element: <CustomerOrderHistoryPage /> },
+              { path: "about/churn", element: <ChurnInfoPage /> },
+              { path: "about/forecast", element: <ForecastInfoPage /> },
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }

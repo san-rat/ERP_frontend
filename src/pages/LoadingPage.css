@@ -40,8 +40,8 @@
 
 /* ── Logo wrap — pop-in ── */
 .ldp-logo-wrap {
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   border-radius: 24px;
   background: rgba(79, 112, 156, 0.18);
   border: 1px solid rgba(79, 112, 156, 0.35);
@@ -67,8 +67,8 @@
 }
 
 .ldp-logo {
-  width: 58px;
-  height: 58px;
+  width: 65px;
+  height: 65px;
   object-fit: contain;
   /* Fade in slightly after wrap appears */
   animation: ldp-logo-fade 0.4s ease 0.55s both;

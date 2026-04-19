@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -28,4 +32,14 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  15%       { transform: rotate(-15deg); }
+  30%       { transform: rotate(12deg); }
+  45%       { transform: rotate(-10deg); }
+  60%       { transform: rotate(8deg); }
+  75%       { transform: rotate(-5deg); }
+  90%       { transform: rotate(3deg); }
 }

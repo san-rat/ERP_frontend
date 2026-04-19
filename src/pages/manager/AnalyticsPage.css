@@ -1,0 +1,278 @@
+.analytics-root {
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.analytics-panel {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.analytics-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.analytics-header h1 {
+  font-family: "DM Serif Display", serif;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.analytics-header p {
+  margin: 0.5rem 0 0;
+  color: var(--ink-60);
+  max-width: 55ch;
+}
+
+.analytics-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0;
+  font-family: inherit;
+}
+
+.analytics-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--primary);
+  background: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.analytics-btn-secondary:hover {
+  background: rgba(79,112,156,0.08);
+}
+
+.analytics-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.analytics-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(33,53,85,0.08);
+  box-shadow: 0 1px 3px rgba(33,53,85,0.08);
+}
+
+.analytics-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.analytics-stat {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.analytics-note {
+  margin: 0.75rem 0 0;
+  color: var(--ink-60);
+  line-height: 1.6;
+}
+
+.analytics-chart-card {
+  grid-column: auto;
+}
+  
+.analytics-chart-placeholder {
+  height: 100px;
+  border-radius: 16px;
+  background: rgba(79,112,156,0.08);
+  display: grid;
+  place-items: center;
+  color: var(--ink-60);
+  font-size: 0.95rem;
+}
+
+.analytics-full-width {
+  grid-column: span 3;
+}
+
+/* ── Enhanced Table Styles ── */
+.analytics-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.analytics-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.analytics-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-30);
+}
+
+.analytics-search-input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--ink-30);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.analytics-search-input:focus {
+  border-color: var(--primary);
+}
+
+.analytics-table-scroll {
+  overflow-x: auto;
+  max-height: 550px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(33,53,85,0.1);
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.analytics-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 2px solid rgba(33,53,85,0.05);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.analytics-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.analytics-table th.sortable:hover {
+  background: #f1f5f9;
+}
+
+.analytics-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(33,53,85,0.05);
+  vertical-align: middle;
+}
+
+.analytics-td-main {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.analytics-product-link {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.analytics-product-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.analytics-td-bold {
+  font-weight: 600;
+}
+
+.analytics-td-mono {
+  font-family: monospace;
+  color: var(--ink-60);
+  font-size: 0.85rem;
+}
+
+.analytics-td-center {
+  text-align: center;
+}
+
+.analytics-volatility-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.analytics-volatility-tag.low {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.analytics-volatility-tag.high {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.analytics-empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--ink-30);
+  font-style: italic;
+}
+
+@media (max-width: 960px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+/* content from c:/Users/nethm/Desktop/ERP_frontend/src/pages/AnalyticsPage.css */
+  }
+}
+
+.analytics-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  background: var(--primary, #4f46e5);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.analytics-generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.analytics-spin {
+  animation: analytics-spin 1s linear infinite;
+}
+@keyframes analytics-spin {
+  to { transform: rotate(360deg); }
+}

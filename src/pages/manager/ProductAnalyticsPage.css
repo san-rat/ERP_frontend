@@ -1,0 +1,180 @@
+.pa-root {
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+  background: var(--bg);
+}
+
+.pa-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pa-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  padding: 0;
+  font-family: inherit;
+}
+
+.pa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+}
+
+.pa-sku-badge {
+  background: var(--ink-10);
+  color: var(--ink-60);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.pa-header h1 {
+  font-family: "DM Serif Display", serif;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.pa-header p {
+  margin: 0.5rem 0 0;
+  color: var(--ink-60);
+}
+
+.pa-status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.pa-status-badge[data-trend="STABLE"] { background: #ecfdf5; color: #065f46; }
+
+.pa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.pa-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(33,53,85,0.08);
+  box-shadow: 0 1px 3px rgba(33,53,85,0.08);
+}
+
+.pa-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pa-icon-wrap {
+  width: 44px;
+  height: 44px;
+  background: rgba(79, 112, 156, 0.1);
+  color: var(--primary);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.pa-stat-info label { font-size: 0.8rem; color: var(--ink-60); font-weight: 500; display: block; margin-bottom: 0.25rem; }
+.pa-stat-info h3 { font-size: 1.5rem; margin: 0; color: var(--ink); }
+.pa-stat-sub { font-size: 0.75rem; color: var(--ink-60); margin-top: 0.2rem; display: block; }
+
+.pa-intelligence-section, .pa-timeline-card, .pa-chart-section { grid-column: span 3; }
+.pa-intelligence-section h2, .pa-timeline-card h2 { font-size: 1.1rem; margin: 0 0 1rem; }
+
+.pa-chart-section { padding: 2rem; }
+.pa-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.pa-algo-tag { font-size: 0.7rem; background: var(--ink-10); padding: 4px 8px; border-radius: 4px; color: var(--ink-60); font-weight: 600; text-transform: uppercase; }
+
+.pa-retrain-card {
+  grid-column: span 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #ffffff, #f8fafc);
+  border-left: 4px solid var(--primary);
+}
+
+.pa-retrain-info { display: flex; align-items: center; gap: 1.25rem; }
+.pa-retrain-info h2 { font-size: 1.1rem; margin: 0 0 0.25rem; }
+.pa-retrain-dates { display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--ink-60); }
+.pa-retrain-dates span { display: flex; align-items: center; gap: 0.4rem; }
+
+.pa-retrain-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pa-retrain-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.pa-retrain-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.pa-retrain-btn.loading svg { animation: pa-spin 1s linear infinite; }
+
+@keyframes pa-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pa-no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.pa-generate-btn {
+  padding: 0.6rem 1.25rem;
+  background: none;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pa-generate-btn:hover:not(:disabled) { background: rgba(79, 112, 156, 0.08); }
+
+.pa-intel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.pa-intel-card { background: var(--white); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--ink-10); }
+.pa-intel-card label { font-size: 0.75rem; font-weight: 600; color: var(--ink-30); text-transform: uppercase; }
+.pa-value { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0; text-transform: capitalize; }
+.pa-value.pos { color: var(--success); }
+.pa-intel-card p { font-size: 0.75rem; color: var(--ink-30); margin: 0; }
+
+.pa-timeline-row { display: flex; gap: 4rem; margin-top: 1rem; }
+.pa-timeline-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+.pa-timeline-item label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--ink-30); }
+/* content from c:/Users/nethm/Desktop/ERP_frontend/src/pages/ProductAnalyticsPage.css */
+
+.pa-loading, .pa-error { min-height: 50vh; display: grid; place-items: center; font-weight: 500; }
