@@ -55,7 +55,26 @@ describe('Admin Flow E2E Integration Suite', () => {
   });
 
   it('admin page load test & dashboard overview data render test', async () => {
-    adminApi.getOverview.mockResolvedValue({ totalUsers: 15, admins: 2 });
+    adminApi.getOverview.mockResolvedValue({
+      staff: {
+        totalUsers: 15,
+        activeUsers: 13,
+        inactiveUsers: 2,
+        adminUsers: 2,
+        managerUsers: 4,
+        employeeUsers: 9,
+      },
+      business: {
+        customers: 50,
+        products: 26,
+        totalOrders: 271,
+        deliveredOrders: 258,
+        cancelledOrders: 13,
+        returns: 0,
+        grossRevenue: 108417.26,
+        refundedTotal: 0,
+      },
+    });
     
     render(<AdminDashboardPage />);
 
@@ -63,7 +82,8 @@ describe('Admin Flow E2E Integration Suite', () => {
     
     await waitFor(() => {
       expect(screen.getByText('15')).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getAllByText('2').length).toBeGreaterThan(0);
+      expect(screen.getByText('$108417.26')).toBeInTheDocument();
     });
   });
 
@@ -77,9 +97,10 @@ describe('Admin Flow E2E Integration Suite', () => {
 
     // Fill form
     fireEvent.change(screen.getByPlaceholderText('System login handle'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email routing identity'), { target: { value: 'testuser@example.com' } });
     
     fireEvent.click(screen.getByText('Create User'));
-    expect(onSubmit).toHaveBeenCalledWith({ username: 'testuser', email: '', role: 'Manager', id: undefined });
+    expect(onSubmit).toHaveBeenCalledWith({ username: 'testuser', email: 'testuser@example.com', role: 'Manager' });
   });
 
   it('edit user test requires prepopulation', () => {
