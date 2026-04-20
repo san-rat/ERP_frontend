@@ -1,20 +1,21 @@
 import { fetchWithAuth } from "./apiUtils";
 
 const BASE_URL = "/api/products";
+const buildRelativeUrl = (path, params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
+    }
+  });
+
+  const query = searchParams.toString();
+  return query ? `${path}?${query}` : path;
+};
 
 export const productsClient = {
-  getList: (params) => {
-    // Construct query parameters
-    const url = new URL(BASE_URL, window.location.origin);
-    if (params) {
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
-          url.searchParams.append(key, params[key]);
-        }
-      });
-    }
-    return fetchWithAuth(url.toString());
-  },
+  getList: (params) => fetchWithAuth(buildRelativeUrl(BASE_URL, params)),
 
   getById: (id) => fetchWithAuth(`${BASE_URL}/${id}`),
   
@@ -33,11 +34,13 @@ export const productsClient = {
   getStockById: (id) => fetchWithAuth(`${BASE_URL}/${id}/stock`),
 
   // Alerts
-  getAlerts: (unresolvedOnly = false) => {
-    const url = new URL(`${BASE_URL}/alerts`, window.location.origin);
-    if (unresolvedOnly) url.searchParams.append("unresolvedOnly", "true");
-    return fetchWithAuth(url.toString());
-  },
+  getAlerts: (unresolvedOnly = false) =>
+    fetchWithAuth(
+      buildRelativeUrl(
+        `${BASE_URL}/alerts`,
+        unresolvedOnly ? { unresolvedOnly: "true" } : {}
+      )
+    ),
   
   resolveAlert: (id) => fetchWithAuth(`${BASE_URL}/alerts/${id}/resolve`, { method: "PATCH" }),
 };
