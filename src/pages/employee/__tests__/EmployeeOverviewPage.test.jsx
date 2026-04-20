@@ -42,7 +42,9 @@ describe('EmployeeOverviewPage', () => {
 
   it('shows error state gracefully', async () => {
     ordersClient.getAll.mockRejectedValue(new Error('Network Error'));
-    productsClient.getStock.mockRejectedValue(new Error('Network Error'));
+    productsClient.getStock.mockResolvedValue([
+      { id: 1, sku: 'SKU1', productName: 'Prod1', isLowStock: true, quantityAvailable: 2, lowStockThreshold: 10 }
+    ]);
 
     render(
       <MemoryRouter>
@@ -51,7 +53,8 @@ describe('EmployeeOverviewPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load dashboard data.')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load recent orders.')).toBeInTheDocument();
+      expect(screen.getByText('SKU1')).toBeInTheDocument();
     });
   });
 });
