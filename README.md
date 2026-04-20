@@ -55,7 +55,7 @@ All API calls are centralised in `src/api/` and driven by the `VITE_API_BASE_URL
 
 ## Getting Started
 
-### 1. Clone the repository
+### 1. Clone the repository of ERP System
 
 ```bash
 git clone <repo-url>
