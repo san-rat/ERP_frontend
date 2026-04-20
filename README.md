@@ -3,8 +3,8 @@
 ## Overview
 
 Frontend for the **InsightERP** system built with **React + Vite + Tailwind CSS v3**.  
-Includes authentication flow (Login, Register), animated loading screen, and a role-based dashboard.  
-All API calls are centralised in `src/api/client.js` and driven by the `VITE_API_BASE_URL` environment variable.
+Includes full role-based routing (Admin, Manager, Employee), authentication flow, animated loading screen, and multi-module dashboards.  
+All API calls are centralised in `src/api/` and driven by the `VITE_API_BASE_URL` environment variable.
 
 ---
 
@@ -19,6 +19,18 @@ All API calls are centralised in `src/api/client.js` and driven by the `VITE_API
 - ✅ JWT token stored in `sessionStorage` (`erp_token`)
 - ✅ Centralized API client with Bearer token injection
 - ✅ Environment-based API URL (`.env.local` / `.env.production`)
+- ✅ Dark version logo added (`dark_version_logo.png`) — used on the Loading page
+- ✅ Frontend connected to API Gateway
+- ✅ Toast notifications via `react-hot-toast`
+- ✅ React Router v7 with full role-based routing
+- ✅ `AuthContext` + `NotificationContext` for global state
+- ✅ Role-based route guards (Admin / Manager / Employee)
+- ✅ Dedicated layouts per role (`AdminLayout`, `ManagerLayout`, `EmployeeLayout`)
+- ✅ Admin module: Dashboard + User Management
+- ✅ Employee module: Overview, Orders, Products, Inventory
+- ✅ Manager module: Analytics, Product Analytics, Customer Insights, Order History, Churn & Forecast info pages
+- ✅ Charts via `recharts`
+- ✅ Unit & integration tests via `vitest` + `@testing-library/react`
 
 ---
 
@@ -26,10 +38,16 @@ All API calls are centralised in `src/api/client.js` and driven by the `VITE_API
 
 | Tool | Version |
 |---|---|
-| React | 18+ |
-| Vite | 5+ |
+| React | 19+ |
+| Vite | 7+ |
 | Tailwind CSS | 3 |
+| react-router-dom | ^7.13 |
+| axios | ^1.13 |
+| recharts | ^3.8 |
+| react-hot-toast | ^2.6 |
 | lucide-react | latest |
+| vitest | ^4.1 |
+| @testing-library/react | ^16.3 |
 | Node.js | 18+ |
 | npm | 9+ |
 
@@ -70,10 +88,60 @@ App runs at → **http://localhost:5173**
 
 ---
 
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run unit tests (vitest) |
+
+---
+
+## Routing
+
+Routes are defined in `src/App.jsx` using `createBrowserRouter`. Access is enforced by role-specific guards.
+
+| Path | Role | Page |
+|---|---|---|
+| `/login` | Public | Login |
+| `/register` | Public | Register |
+| `/` | Any (authenticated) | Home Dashboard |
+| `/admin` | Admin | Admin Dashboard |
+| `/admin/users` | Admin | User Management |
+| `/employee/overview` | Employee | Overview |
+| `/employee/orders` | Employee | Orders |
+| `/employee/products` | Employee | Products |
+| `/employee/inventory` | Employee | Inventory |
+| `/manager/analytics` | Manager | Analytics |
+| `/manager/product-analytics/:productId` | Manager | Product Analytics |
+| `/manager/customer-insights` | Manager | Customer Insights |
+| `/manager/customer-insights/:customerId/orders` | Manager | Customer Order History |
+| `/manager/about/churn` | Manager | Churn Info |
+| `/manager/about/forecast` | Manager | Forecast Info |
+
+After login, users are automatically redirected to their role's default route.
+
+---
+
 ## API Integration
 
-All API requests are routed through **`src/api/client.js`** using the `VITE_API_BASE_URL` environment variable.  
+All API requests are routed through `src/api/` using the `VITE_API_BASE_URL` environment variable.  
 No hardcoded URLs exist in the codebase.
+
+### API clients
+
+| File | Responsibility |
+|---|---|
+| `src/api/client.js` | Base `apiFetch` helper + auth (login / register) |
+| `src/api/adminClient.js` | Admin — user management |
+| `src/api/ordersClient.js` | Orders data |
+| `src/api/productsClient.js` | Products data |
+| `src/api/mlClient.js` | ML predictions (churn, etc.) |
+| `src/api/forecastingClient.js` | Demand forecasting |
+| `src/api/apiUtils.js` | Shared utilities |
 
 ### Environment files
 
@@ -114,24 +182,70 @@ All subsequent authenticated requests automatically attach the token via the `Au
 ERP_frontend/
 ├── public/
 │   └── logo/
-│       └── logo.png           ← app logo used across all pages
+│       ├── logo.png                        ← primary app logo
+│       └── dark_version_logo.png           ← dark variant logo used on Loading page
 ├── src/
 │   ├── api/
-│   │   └── client.js          ← centralized API client (auth + apiFetch helper)
+│   │   ├── client.js                       ← base apiFetch helper + auth endpoints
+│   │   ├── adminClient.js                  ← admin user management
+│   │   ├── ordersClient.js                 ← orders API
+│   │   ├── productsClient.js               ← products API
+│   │   ├── mlClient.js                     ← ML/churn predictions
+│   │   ├── forecastingClient.js            ← demand forecasting
+│   │   ├── apiUtils.js                     ← shared API utilities
+│   │   └── __tests__/                      ← API client unit tests
+│   ├── components/
+│   │   ├── admin/
+│   │   │   ├── AdminUserModal.jsx
+│   │   │   ├── AdminUsersTable.jsx
+│   │   │   └── ResetPasswordModal.jsx
+│   │   ├── auth/
+│   │   │   ├── AdminRouteGuard.jsx         ← redirects non-admins
+│   │   │   ├── EmployeeRouteGuard.jsx      ← redirects non-employees
+│   │   │   └── ManagerRouteGuard.jsx       ← redirects non-managers
+│   │   ├── common/
+│   │   │   ├── AlertsMenu.jsx
+│   │   │   └── NotificationPanel.jsx
+│   │   └── employee/
+│   │       ├── DataTable.jsx
+│   │       ├── KpiCard.jsx
+│   │       ├── PageHeader.jsx
+│   │       └── StatusBadge.jsx
+│   ├── constants/
+│   │   └── productCategories.js
+│   ├── context/
+│   │   ├── AuthContext.jsx                 ← global auth state (login/logout/user)
+│   │   └── NotificationContext.jsx         ← global notification state
+│   ├── layouts/
+│   │   ├── AdminLayout.jsx
+│   │   ├── EmployeeLayout.jsx
+│   │   └── ManagerLayout.jsx
 │   ├── pages/
-│   │   ├── LoginPage.jsx      ← username + password login with real API call
-│   │   ├── LoginPage.css
-│   │   ├── RegisterPage.jsx   ← registration form with password strength meter
-│   │   ├── RegisterPage.css
-│   │   ├── LoadingPage.jsx    ← animated brand splash screen
-│   │   ├── LoadingPage.css
-│   │   ├── HomePage.jsx       ← dashboard with sidebar + KPIs
-│   │   └── HomePage.css
-│   ├── App.jsx                ← screen transition controller
-│   ├── main.jsx               ← app entry point
-│   └── index.css              ← global design tokens + reset
-├── .env.local                 ← local API URL (not committed)
-├── .env.production            ← production API URL (not committed)
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── LoadingPage.jsx
+│   │   ├── HomePage.jsx
+│   │   ├── admin/
+│   │   │   ├── AdminDashboardPage.jsx
+│   │   │   └── AdminUsersPage.jsx
+│   │   ├── employee/
+│   │   │   ├── EmployeeOverviewPage.jsx
+│   │   │   ├── EmployeeOrdersPage.jsx
+│   │   │   ├── EmployeeProductsPage.jsx
+│   │   │   └── EmployeeInventoryPage.jsx
+│   │   └── manager/
+│   │       ├── AnalyticsPage.jsx
+│   │       ├── ProductAnalyticsPage.jsx
+│   │       ├── CustomerInsightsPage.jsx
+│   │       ├── CustomerOrderHistoryPage.jsx
+│   │       ├── ChurnInfoPage.jsx
+│   │       └── ForecastInfoPage.jsx
+│   ├── tests/                              ← integration tests
+│   ├── App.jsx                             ← router + role-based route config
+│   ├── main.jsx                            ← app entry point
+│   └── index.css                           ← global design tokens + reset
+├── .env.local                              ← local API URL (not committed)
+├── .env.production                         ← production API URL (not committed)
 ├── tailwind.config.js
 ├── vite.config.js
 ├── package.json
@@ -154,11 +268,17 @@ npm run preview
 
 ---
 
-## Planned Architecture
+## Architecture Status
 
 - ✅ Real API integration (AuthService — login & register)
 - ✅ JWT token storage and Bearer header injection
+- ✅ Frontend connected to Azure API Gateway
+- ✅ Toast notifications for user feedback
+- ✅ React Router v7 with `createBrowserRouter`
+- ✅ Role-based route guards (Admin / Manager / Employee)
+- ✅ Admin module: Dashboard + User Management
+- ✅ Employee module: Overview, Orders, Products, Inventory
+- ✅ Manager module: Analytics, Product Analytics, Customer Insights, Churn & Forecast
+- ✅ Unit & integration tests (vitest)
 - 🔄 CI/CD with GitHub Actions
-- 🔄 React Router for multi-page navigation
-- 🔄 Role-based route guards (Admin / Manager / Employee / Customer)
-- 🔄 Full module pages: Customers, Orders, Products, Reports, Settings
+- 🔄 Customer-facing portal
