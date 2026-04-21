@@ -32,17 +32,36 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Fallback map safely incase endpoints are mocking different objects
-  const d = data || {};
+  const staff = {
+    totalUsers: data?.totalUsers,
+    activeUsers: data?.activeUsers,
+    inactiveUsers: data?.inactiveUsers,
+    adminUsers: data?.admins,
+    managerUsers: data?.managers,
+    employeeUsers: data?.employees,
+    ...(data?.staff ?? {}),
+  };
+
+  const business = {
+    customers: data?.customers,
+    products: data?.products,
+    totalOrders: data?.totalOrders,
+    deliveredOrders: data?.deliveredOrders,
+    cancelledOrders: data?.cancelledOrders,
+    returns: data?.returns,
+    grossRevenue: data?.grossRevenue,
+    refundedTotal: data?.refundedTotal,
+    ...(data?.business ?? {}),
+  };
 
   const MetricCard = ({ label, value, icon: Icon, color, bg }) => (
     <div className="bg-white rounded-xl shadow-card p-5 flex items-center gap-4 border border-surface/50">
-      <div className={`w-12 h-12 rounded-lg flex items-center justify-center \${bg} \${color}`}>
+      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${bg} ${color}`}>
         <Icon size={24} />
       </div>
       <div>
         <p className="text-sm font-medium text-ink/70">{label}</p>
-        <p className="text-2xl font-bold text-ink">{value || 0}</p>
+        <p className="text-2xl font-bold text-ink">{value ?? 0}</p>
       </div>
     </div>
   );
@@ -59,13 +78,13 @@ export default function AdminDashboardPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4 border-b border-surface pb-2">Users & Roles</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard label="Total Users" value={d.totalUsers} icon={Users} color="text-info-text" bg="bg-info-light" />
-            <MetricCard label="Active Users" value={d.activeUsers} icon={UserCheck} color="text-success-text" bg="bg-success-light" />
-            <MetricCard label="Inactive Users" value={d.inactiveUsers} icon={UserMinus} color="text-warning-text" bg="bg-warning-light" />
-            <MetricCard label="Admins" value={d.admins} icon={ShieldAlert} color="text-warning-text" bg="bg-warning-light" />
-            <MetricCard label="Managers" value={d.managers} icon={UserPLUSIcon} color="text-info-text" bg="bg-info-light" />
-            <MetricCard label="Employees" value={d.employees} icon={Users} color="text-info-text" bg="bg-info-light" />
-            <MetricCard label="Customers" value={d.customers} icon={Users} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Total Users" value={staff.totalUsers} icon={Users} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Active Users" value={staff.activeUsers} icon={UserCheck} color="text-success-text" bg="bg-success-light" />
+            <MetricCard label="Inactive Users" value={staff.inactiveUsers} icon={UserMinus} color="text-warning-text" bg="bg-warning-light" />
+            <MetricCard label="Admins" value={staff.adminUsers} icon={ShieldAlert} color="text-warning-text" bg="bg-warning-light" />
+            <MetricCard label="Managers" value={staff.managerUsers} icon={UserPLUSIcon} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Employees" value={staff.employeeUsers} icon={Users} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Customers" value={business.customers} icon={Users} color="text-info-text" bg="bg-info-light" />
           </div>
         </div>
 
@@ -73,13 +92,13 @@ export default function AdminDashboardPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4 border-b border-surface pb-2">Business Data</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard label="Gross Revenue" value={`$${d.grossRevenue || '0.00'}`} icon={DollarSign} color="text-success-text" bg="bg-success-light" />
-            <MetricCard label="Refunded Total" value={`$${d.refundedTotal || '0.00'}`} icon={CreditCard} color="text-danger-text" bg="bg-danger-light" />
-            <MetricCard label="Total Orders" value={d.totalOrders} icon={ShoppingCart} color="text-info-text" bg="bg-info-light" />
-            <MetricCard label="Delivered Orders" value={d.deliveredOrders} icon={Package} color="text-success-text" bg="bg-success-light" />
-            <MetricCard label="Cancelled Orders" value={d.cancelledOrders} icon={AlertTriangle} color="text-warning-text" bg="bg-warning-light" />
-            <MetricCard label="Returns" value={d.returns} icon={RotateCcw} color="text-danger-text" bg="bg-danger-light" />
-            <MetricCard label="Products" value={d.products} icon={Package} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Gross Revenue" value={`$${Number(business.grossRevenue ?? 0).toFixed(2)}`} icon={DollarSign} color="text-success-text" bg="bg-success-light" />
+            <MetricCard label="Refunded Total" value={`$${Number(business.refundedTotal ?? 0).toFixed(2)}`} icon={CreditCard} color="text-danger-text" bg="bg-danger-light" />
+            <MetricCard label="Total Orders" value={business.totalOrders} icon={ShoppingCart} color="text-info-text" bg="bg-info-light" />
+            <MetricCard label="Delivered Orders" value={business.deliveredOrders} icon={Package} color="text-success-text" bg="bg-success-light" />
+            <MetricCard label="Cancelled Orders" value={business.cancelledOrders} icon={AlertTriangle} color="text-warning-text" bg="bg-warning-light" />
+            <MetricCard label="Returns" value={business.returns} icon={RotateCcw} color="text-danger-text" bg="bg-danger-light" />
+            <MetricCard label="Products" value={business.products} icon={Package} color="text-info-text" bg="bg-info-light" />
           </div>
         </div>
       </div>

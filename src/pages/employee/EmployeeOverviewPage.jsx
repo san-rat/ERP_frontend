@@ -21,18 +21,33 @@ export default function EmployeeOverviewPage() {
     async function fetchData() {
       try {
         setLoading(true);
-        // Fetch orders and stock simultaneously
-        const [ordersData, stockData] = await Promise.all([
-          ordersClient.getAll().catch(() => []), 
-          productsClient.getStock().catch(() => [])
+        setError(null);
+        const [ordersResult, stockResult] = await Promise.allSettled([
+          ordersClient.getAll(),
+          productsClient.getStock(),
         ]);
 
         if (active) {
-          setOrders(ordersData || []);
-          
-          // isLowStock logic: boolean flag in DTO
-          const lowStock = (stockData || []).filter(item => item.isLowStock);
-          setLowStockProducts(lowStock);
+          let nextError = null;
+
+          if (ordersResult.status === "fulfilled") {
+            setOrders(ordersResult.value || []);
+          } else {
+            setOrders([]);
+            nextError = "Failed to load recent orders.";
+          }
+
+          if (stockResult.status === "fulfilled") {
+            const lowStock = (stockResult.value || []).filter((item) => item.isLowStock);
+            setLowStockProducts(lowStock);
+          } else {
+            setLowStockProducts([]);
+            nextError = nextError
+              ? "Failed to load recent orders and inventory alerts."
+              : "Failed to load inventory alerts.";
+          }
+
+          setError(nextError);
         }
       } catch (err) {
         if (active) setError("Failed to load dashboard data.");
@@ -56,7 +71,7 @@ export default function EmployeeOverviewPage() {
     { title: "Status", key: "status", render: (row) => <StatusBadge status={row.status} /> },
   ];
 
-  const recentOrders = orders
+  const recentOrders = [...orders]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 8);
 

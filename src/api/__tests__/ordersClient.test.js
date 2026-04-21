@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ordersClient } from '../ordersClient';
-import * as apiUtils from '../../apiUtils';
+import * as apiUtils from '../apiUtils';
 
-vi.mock('../../apiUtils', () => ({
+vi.mock('../apiUtils', () => ({
   fetchWithAuth: vi.fn()
 }));
 
@@ -17,7 +17,7 @@ describe('ordersClient', () => {
 
     const result = await ordersClient.getAll();
     
-    expect(apiUtils.fetchWithAuth).toHaveBeenCalledWith('/orders');
+    expect(apiUtils.fetchWithAuth).toHaveBeenCalledWith('/api/orders');
     expect(result).toEqual(mockOrders);
   });
 
@@ -27,7 +27,7 @@ describe('ordersClient', () => {
 
     const result = await ordersClient.getSummary();
     
-    expect(apiUtils.fetchWithAuth).toHaveBeenCalledWith('/orders/summary');
+    expect(apiUtils.fetchWithAuth).toHaveBeenCalledWith('/api/orders/reports/summary');
     expect(result).toEqual(mockSummary);
   });
 });
