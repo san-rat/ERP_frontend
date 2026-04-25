@@ -1,0 +1,301 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`KpiCard — snapshot tests > renders a basic card with title and value 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-[#D8C4B6] shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Total Orders
+      </p>
+      <h3
+        class="text-2xl font-semibold text-[#213555]"
+      >
+        142
+      </h3>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`KpiCard — snapshot tests > renders a card with a downward trend 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-[#D8C4B6] shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Returns
+      </p>
+      <h3
+        class="text-2xl font-semibold text-[#213555]"
+      >
+        23
+      </h3>
+    </div>
+  </div>
+  <div
+    class="mt-4 flex items-center text-sm"
+  >
+    <span
+      class="text-rose-600 flex items-center font-medium"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-trending-down mr-1"
+        fill="none"
+        height="16"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16 17h6v-6"
+        />
+        <path
+          d="m22 17-8.5-8.5-5 5L2 7"
+        />
+      </svg>
+      -4.1%
+    </span>
+    <span
+      class="text-gray-400 ml-2"
+    >
+      from last period
+    </span>
+  </div>
+</div>
+`;
+
+exports[`KpiCard — snapshot tests > renders a card with an icon 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-[#D8C4B6] shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Products
+      </p>
+      <h3
+        class="text-2xl font-semibold text-[#213555]"
+      >
+        58
+      </h3>
+    </div>
+    <div
+      class="p-2 rounded-lg bg-[#F5EFE7] text-[#4F709C]"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-package"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"
+        />
+        <path
+          d="M12 22V12"
+        />
+        <polyline
+          points="3.29 7 12 12 20.71 7"
+        />
+        <path
+          d="m7.5 4.27 9 5.15"
+        />
+      </svg>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`KpiCard — snapshot tests > renders a card with an upward trend 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-[#D8C4B6] shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Revenue
+      </p>
+      <h3
+        class="text-2xl font-semibold text-[#213555]"
+      >
+        $12,400
+      </h3>
+    </div>
+  </div>
+  <div
+    class="mt-4 flex items-center text-sm"
+  >
+    <span
+      class="text-emerald-600 flex items-center font-medium"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-trending-up mr-1"
+        fill="none"
+        height="16"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16 7h6v6"
+        />
+        <path
+          d="m22 7-8.5 8.5-5-5L2 17"
+        />
+      </svg>
+      +8.3%
+    </span>
+    <span
+      class="text-gray-400 ml-2"
+    >
+      from last period
+    </span>
+  </div>
+</div>
+`;
+
+exports[`KpiCard — snapshot tests > renders a fully loaded card (all props) 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-[#D8C4B6] shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Pending Shipments
+      </p>
+      <h3
+        class="text-2xl font-semibold text-[#213555]"
+      >
+        19
+      </h3>
+    </div>
+    <div
+      class="p-2 rounded-lg bg-[#F5EFE7] text-[#4F709C]"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-package"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"
+        />
+        <path
+          d="M12 22V12"
+        />
+        <polyline
+          points="3.29 7 12 12 20.71 7"
+        />
+        <path
+          d="m7.5 4.27 9 5.15"
+        />
+      </svg>
+    </div>
+  </div>
+  <div
+    class="mt-4 flex items-center text-sm"
+  >
+    <span
+      class="text-emerald-600 flex items-center font-medium"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-trending-up mr-1"
+        fill="none"
+        height="16"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16 7h6v6"
+        />
+        <path
+          d="m22 7-8.5 8.5-5-5L2 17"
+        />
+      </svg>
+      +2
+    </span>
+    <span
+      class="text-gray-400 ml-2"
+    >
+      from last period
+    </span>
+  </div>
+</div>
+`;
+
+exports[`KpiCard — snapshot tests > renders an alert state card 1`] = `
+<div
+  class="p-5 rounded-xl border bg-white border-rose-300 ring-1 ring-rose-200 shadow-sm"
+>
+  <div
+    class="flex items-start justify-between"
+  >
+    <div>
+      <p
+        class="text-sm font-medium text-gray-500 mb-1"
+      >
+        Low Stock Items
+      </p>
+      <h3
+        class="text-2xl font-semibold text-rose-700"
+      >
+        7
+      </h3>
+    </div>
+  </div>
+</div>
+`;
