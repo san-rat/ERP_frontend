@@ -21,6 +21,7 @@ const mockError = (status, message) =>
   Promise.resolve({
     ok: false,
     status,
+    json: async () => ({ message }),
     text: async () => JSON.stringify({ message }),
   });
 
