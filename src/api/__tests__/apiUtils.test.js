@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchWithAuth } from '../../apiUtils';
+import { fetchWithAuth } from '../apiUtils';
 
 describe('apiUtils', () => {
   beforeEach(() => {

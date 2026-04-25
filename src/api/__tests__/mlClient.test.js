@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mlClient } from '../mlClient';
-import * as apiUtils from '../../apiUtils';
+import * as apiUtils from '../apiUtils';
 
-vi.mock('../../apiUtils', () => ({
+vi.mock('../apiUtils', () => ({
   fetchWithAuth: vi.fn()
 }));
 
