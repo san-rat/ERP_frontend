@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import NotificationPanel from '../NotificationPanel';
 
 vi.mock('../../../context/AuthContext', () => ({
@@ -49,16 +49,16 @@ describe.each([
     useAuth.mockReturnValue({ user: { role } });
   });
 
-  it('renders the correct panel label when opened', () => {
+  it('renders the correct panel label when opened', async () => {
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
-    expect(screen.getByText(expectedLabel)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(expectedLabel)).toBeInTheDocument());
   });
 
-  it('renders the correct role hint when opened', () => {
+  it('renders the correct role hint when opened', async () => {
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
-    expect(screen.getByText(expectedHint)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(expectedHint)).toBeInTheDocument());
   });
 });
 
@@ -81,12 +81,14 @@ describe.each([
     expectedSub:     'No active stock alerts right now.',
   },
 ])('empty state message for $role', ({ role, expectedMessage, expectedSub }) => {
-  it('shows the correct empty state text', () => {
+  it('shows the correct empty state text', async () => {
     useAuth.mockReturnValue({ user: { role } });
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
-    expect(screen.getByText(expectedMessage)).toBeInTheDocument();
-    expect(screen.getByText(expectedSub)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+      expect(screen.getByText(expectedSub)).toBeInTheDocument();
+    });
   });
 });
 
@@ -144,7 +146,7 @@ describe('notification list rendering', () => {
     },
   ])(
     'renders notification titled "$title"',
-    ({ title, message, sku, qty, threshold }) => {
+    async ({ title, message, sku, qty, threshold }) => {
       const notification = {
         id: 1, read: false, triggeredAt: new Date().toISOString(),
         title, message, sku,
@@ -159,8 +161,10 @@ describe('notification list rendering', () => {
       render(<NotificationPanel />);
       fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
 
-      expect(screen.getByText(title)).toBeInTheDocument();
-      expect(screen.getByText(`SKU: ${sku}`)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(title)).toBeInTheDocument();
+        expect(screen.getByText(`SKU: ${sku}`)).toBeInTheDocument();
+      });
     }
   );
 });
@@ -172,19 +176,21 @@ describe.each([
   { role: 'MANAGER',  expectsDisabled: false },
   { role: 'EMPLOYEE', expectsDisabled: false },
 ])('Refresh button for $role', ({ role, expectsDisabled }) => {
-  it('is disabled only for Admin', () => {
+  it('is disabled only for Admin', async () => {
     useAuth.mockReturnValue({ user: { role } });
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
 
-    const refreshBtn = screen.getByTitle(
-      role === 'ADMIN' ? 'Stock alerts not available for Admin' : 'Refresh'
-    );
-    if (expectsDisabled) {
-      expect(refreshBtn).toBeDisabled();
-    } else {
-      expect(refreshBtn).not.toBeDisabled();
-    }
+    await waitFor(() => {
+      const refreshBtn = screen.getByTitle(
+        role === 'ADMIN' ? 'Stock alerts not available for Admin' : 'Refresh'
+      );
+      if (expectsDisabled) {
+        expect(refreshBtn).toBeDisabled();
+      } else {
+        expect(refreshBtn).not.toBeDisabled();
+      }
+    });
   });
 });
 
@@ -200,22 +206,22 @@ describe('panel visibility', () => {
     expect(screen.queryByText('Notifications')).not.toBeInTheDocument();
   });
 
-  it('panel opens on bell click', () => {
+  it('panel opens on bell click', async () => {
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
-    expect(screen.getByText('Notifications')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Notifications')).toBeInTheDocument());
   });
 
-  it('panel closes on the X button click', () => {
+  it('panel closes on the X button click', async () => {
     render(<NotificationPanel />);
     fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
-    expect(screen.getByText('Notifications')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Notifications')).toBeInTheDocument());
 
     // The X button has no accessible name — query by its position in the header actions
     const allButtons = screen.getAllByRole('button');
     const closeBtn = allButtons[allButtons.length - 1]; // last button in the header row
     fireEvent.click(closeBtn);
 
-    expect(screen.queryByText('Notifications')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Notifications')).not.toBeInTheDocument());
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import ManagerLayout from "../ManagerLayout.jsx";
 
@@ -15,7 +15,7 @@ vi.mock("../../components/common/NotificationPanel", () => ({
 }));
 
 describe("ManagerLayout", () => {
-  it("does not expose a broken product analytics sidebar link", () => {
+  it("does not expose a broken product analytics sidebar link", async () => {
     render(
       <MemoryRouter initialEntries={["/manager/analytics"]}>
         <Routes>
@@ -26,8 +26,10 @@ describe("ManagerLayout", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("link", { name: "Product Insights" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Customer Insights" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Product Insights" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Customer Insights" })).toBeInTheDocument();
+    });
     expect(screen.queryByRole("link", { name: "Order History" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Product Analytics" })).not.toBeInTheDocument();
   });

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RegisterPage from '../RegisterPage';
 
 // Mock the API so no real network call is made
@@ -64,11 +64,13 @@ describe('required field validation', () => {
     { field: 'confirmPassword', emptyValue: '',  errorText: 'Please confirm your password.' },
   ])(
     'shows "$errorText" when $field is empty',
-    ({ field, emptyValue, errorText }) => {
+    async ({ field, emptyValue, errorText }) => {
       render(<RegisterPage />);
       fillForm({ [field]: emptyValue });
       fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
-      expect(screen.getByText(errorText)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(errorText)).toBeInTheDocument();
+      });
     }
   );
 });
@@ -82,11 +84,13 @@ describe('password rule validation', () => {
     { password: 'NoDigitsA', errorText: 'Include at least one number.'           },
   ])(
     'shows "$errorText" for password "$password"',
-    ({ password, errorText }) => {
+    async ({ password, errorText }) => {
       render(<RegisterPage />);
       fillForm({ password, confirmPassword: password });
       fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
-      expect(screen.getByText(errorText)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(errorText)).toBeInTheDocument();
+      });
     }
   );
 });
@@ -100,11 +104,13 @@ describe('email format validation', () => {
     { email: '@nodomain.com' },
   ])(
     'shows "Enter a valid email." for "$email"',
-    ({ email }) => {
+    async ({ email }) => {
       render(<RegisterPage />);
       fillForm({ email });
       fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
-      expect(screen.getByText('Enter a valid email.')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Enter a valid email.')).toBeInTheDocument();
+      });
     }
   );
 });
@@ -118,11 +124,13 @@ describe('password confirmation mismatch', () => {
     { password: 'Secure1!', confirmPassword: 'Secure1'  },
   ])(
     'shows mismatch error when confirm="$confirmPassword"',
-    ({ password, confirmPassword }) => {
+    async ({ password, confirmPassword }) => {
       render(<RegisterPage />);
       fillForm({ password, confirmPassword });
       fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
-      expect(screen.getByText('Passwords do not match.')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Passwords do not match.')).toBeInTheDocument();
+      });
     }
   );
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ResetPasswordModal from '../ResetPasswordModal';
 
 const noop = vi.fn();
@@ -23,7 +23,7 @@ describe.each([
     expect(labels.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('keeps Confirm Reset disabled until the token is typed exactly', () => {
+  it('keeps Confirm Reset disabled until the token is typed exactly', async () => {
     render(
       <ResetPasswordModal isOpen user={user} onClose={noop} onConfirm={noop} />
     );
@@ -33,10 +33,10 @@ describe.each([
     fireEvent.change(screen.getByPlaceholderText('Confirmation required...'), {
       target: { value: expectedText },
     });
-    expect(confirmBtn).not.toBeDisabled();
+    await waitFor(() => expect(confirmBtn).not.toBeDisabled());
   });
 
-  it('re-disables Confirm Reset when input does not match exactly', () => {
+  it('re-disables Confirm Reset when input does not match exactly', async () => {
     render(
       <ResetPasswordModal isOpen user={user} onClose={noop} onConfirm={noop} />
     );
@@ -44,7 +44,7 @@ describe.each([
     const confirmBtn = screen.getByRole('button', { name: 'Confirm Reset' });
 
     fireEvent.change(input, { target: { value: expectedText + '!' } });
-    expect(confirmBtn).toBeDisabled();
+    await waitFor(() => expect(confirmBtn).toBeDisabled());
   });
 });
 
