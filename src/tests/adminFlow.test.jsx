@@ -77,9 +77,10 @@ describe('Admin Flow E2E Integration Suite', () => {
 
     // Fill form
     fireEvent.change(screen.getByPlaceholderText('System login handle'), { target: { value: 'testuser' } });
-    
+    fireEvent.change(screen.getByPlaceholderText('Email routing identity'), { target: { value: 'testuser@example.com' } });
+
     fireEvent.click(screen.getByText('Create User'));
-    expect(onSubmit).toHaveBeenCalledWith({ username: 'testuser', email: '', role: 'Manager', id: undefined });
+    expect(onSubmit).toHaveBeenCalledWith({ username: 'testuser', email: 'testuser@example.com', role: 'Manager' });
   });
 
   it('edit user test requires prepopulation', () => {
