@@ -26,9 +26,9 @@ describe("ManagerLayout", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("link", { name: "Analytics" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Product Insights" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Customer Insights" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Order History" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Order History" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Product Analytics" })).not.toBeInTheDocument();
   });
 });

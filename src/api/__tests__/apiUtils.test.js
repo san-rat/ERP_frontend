@@ -24,23 +24,17 @@ describe('apiUtils', () => {
     }
   });
 
-  it('redirects on 401', async () => {
+  it('throws an API error on 401 without clearing the session', async () => {
     sessionStorage.setItem('erp_token', 'test');
-    delete window.location;
-    window.location = { href: '' };
 
     global.fetch.mockResolvedValue({
       ok: false,
       status: 401,
+      statusText: 'Unauthorized',
       headers: new Headers(),
     });
 
-    try {
-      await fetchWithAuth('/api/test');
-    } catch (e) {
-      expect(e.message).toMatch(/Session expired/);
-      expect(sessionStorage.getItem('erp_token')).toBeNull();
-      expect(window.location.href).toBe('/login');
-    }
+    await expect(fetchWithAuth('/api/test')).rejects.toThrow('API Error: 401');
+    expect(sessionStorage.getItem('erp_token')).toBe('test');
   });
 });

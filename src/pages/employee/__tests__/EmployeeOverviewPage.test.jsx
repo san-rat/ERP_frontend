@@ -40,7 +40,7 @@ describe('EmployeeOverviewPage', () => {
     });
   });
 
-  it('shows error state gracefully', async () => {
+  it('shows empty state when API calls fail', async () => {
     ordersClient.getAll.mockRejectedValue(new Error('Network Error'));
     productsClient.getStock.mockRejectedValue(new Error('Network Error'));
 
@@ -51,7 +51,8 @@ describe('EmployeeOverviewPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load dashboard data.')).toBeInTheDocument();
+      expect(screen.getByText('Overview')).toBeInTheDocument();
+      expect(screen.getByText('No recent orders found.')).toBeInTheDocument();
     });
   });
 });
