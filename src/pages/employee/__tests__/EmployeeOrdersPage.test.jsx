@@ -104,7 +104,8 @@ describe('EmployeeOrdersPage', () => {
 
   it('calls getAll again when the Refresh button is clicked', async () => {
     renderPage();
-    await waitFor(() => expect(ordersClient.getAll).toHaveBeenCalledTimes(1));
+    // Wait for initial load to complete — button is disabled while loading=true
+    await waitFor(() => screen.getByText('ORD-001'));
 
     fireEvent.click(screen.getByText('Refresh'));
 
@@ -317,4 +318,71 @@ describe('EmployeeOrdersPage', () => {
     expect(screen.getByText('Mark Shipped')).toBeInTheDocument();
     expect(screen.getByText('Cancel Order...')).toBeInTheDocument();
   });
+
+  // ── Client-side Filtering (lines 75-99) ─────────────────────────────────────
+
+  it('hides orders that do not match the status filter', async () => {
+    // Two orders — one PENDING, one DELIVERED
+    ordersClient.getAll.mockResolvedValue([
+      makeOrder({ externalOrderId: 'ORD-PEND', status: 'PENDING' }),
+      makeOrder({ id: 2, externalOrderId: 'ORD-DLVD', status: 'DELIVERED' }),
+    ]);
+
+    render(
+      // initialEntries sets status=PENDING in the URL so the filter is active
+      <MemoryRouter initialEntries={['/?status=PENDING']}>
+        <EmployeeOrdersPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('ORD-PEND'));
+    // DELIVERED order should be filtered out
+    expect(screen.queryByText('ORD-DLVD')).not.toBeInTheDocument();
+  });
+
+  it('filters orders by search query matching externalOrderId', async () => {
+    ordersClient.getAll.mockResolvedValue([
+      makeOrder({ externalOrderId: 'ORD-ALPHA', customerId: 'C1' }),
+      makeOrder({ id: 2, externalOrderId: 'ORD-BETA', customerId: 'C2' }),
+    ]);
+
+    // Set q=alpha in URL — the page reads it via useSearchParams
+    render(
+      <MemoryRouter initialEntries={['/?q=alpha']}>
+        <EmployeeOrdersPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('ORD-ALPHA'));
+    expect(screen.queryByText('ORD-BETA')).not.toBeInTheDocument();
+  });
+
+  it('filters orders by search query matching customerId', async () => {
+    ordersClient.getAll.mockResolvedValue([
+      makeOrder({ externalOrderId: 'ORD-X', customerId: 'cust-xyz' }),
+      makeOrder({ id: 2, externalOrderId: 'ORD-Y', customerId: 'cust-abc' }),
+    ]);
+
+    render(
+      <MemoryRouter initialEntries={['/?q=xyz']}>
+        <EmployeeOrdersPage />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('ORD-X'));
+    expect(screen.queryByText('ORD-Y')).not.toBeInTheDocument();
+  });
+
+  it('changing the status dropdown updates the URL filter param', async () => {
+    renderPage();
+    await waitFor(() => screen.getByText('ORD-001'));
+
+    fireEvent.change(screen.getByDisplayValue('All Statuses'), {
+      target: { value: 'SHIPPED' },
+    });
+
+    // updateSearchParam sets the URL param — the select now shows 'Shipped'
+    expect(screen.getByDisplayValue('Shipped')).toBeInTheDocument();
+  });
 });
+
