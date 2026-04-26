@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Take-Home Assessment – Testing Implementation (10%) + A4 Rubric</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  /* ---------- GLOBAL THEME (screen) ---------- */
+  :root{
+    --bg:#0f172a;
+    --card:#0b1220;
+    --ink:#f8fafc;
+    --muted:#cbd5e1;
+    --accent:#34d399;
+    --accent2:#60a5fa;
+    --warn:#fbbf24;
+  }
+  html,body{
+    margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:1000px;margin:48px auto;padding:0 20px}
+  header{margin-bottom:26px}
+  h1{font-size:clamp(24px,3vw,36px);margin:0 0 6px 0}
+  h2{font-size:clamp(20px,2.4vw,28px);margin:24px 0 10px 0;color:var(--accent)}
+  h3{font-size:clamp(18px,2vw,22px);margin:18px 0 10px 0;color:var(--accent2)}
+  p.lead{color:var(--muted);margin-top:0}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  ul,ol{padding-left:22px}
+  .badge{display:inline-block;font-size:12px;padding:3px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:var(--muted);margin-left:8px;margin-bottom:8px;}
+  .warn{border-left:4px solid var(--warn);padding:10px 14px;background:rgba(251,191,36,.12);border-radius:8px;color:#fde68a}
+  code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+
+  /* ---------- RUBRIC (screen) ---------- */
+  .rubric-wrap{background:#fff;color:#111827;border-radius:18px;border:1px solid #e5e7eb;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:18px}
+  .rubric-head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb;padding-bottom:8px;margin-bottom:10px}
+  .rubric-head h2{color:#111827;margin:0;font-size:24px}
+  .rubric-meta{font-size:13px;color:#374151;display:flex;gap:12px;flex-wrap:wrap}
+  .rubric-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .rb{font-size:12px;border:1px solid #d1d5db;padding:2px 8px;border-radius:999px;background:#f3f4f6;color:#111827}
+
+  .rubric table{width:100%;border-collapse:collapse;table-layout:fixed; font-size: 14px;}
+  .rubric th,.rubric td{border:1px solid #d1d5db;padding:8px;vertical-align:top;word-break:break-word}
+  .rubric th{background:#eef2ff;color:#111827;text-align:left}
+  .rubric thead th{font-weight:700}
+  .rubric tbody tr:nth-child(even) td{background:#fafafa}
+  .w-crit{width:18%}.w-weight{width:7%;text-align:center}.w-band{width:15%}
+
+  /* ---------- PRINT: make the rubric section fit exactly in A4 ---------- */
+  @page { size: A4 portrait; margin: 15mm 12mm 15mm 12mm; }
+  @media print {
+    body{background:#fff;color:#111}
+    .wrap{max-width:none;margin:0;padding:0}
+    .card{box-shadow:none;border:1px solid #ddd}
+    .rubric-container{page-break-inside:avoid}
+    .rubric-wrap{box-shadow:none;border:1px solid #ccc;border-radius:0;padding:0}
+    .rubric-head{border:none;margin:0 0 6px 0;padding:0 0 4px 0}
+    .rubric table{font-family:"Times New Roman", Times, serif;font-size:9.5pt}
+    .rubric th,.rubric td{padding:5px}
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Take-Home Assessment – Testing Implementation</h1>
+      <p class="lead">Module: <b>SE3112 - Advanced Software Engineering</b> (BSc. Hons in Computer Science - Y3S1)</p>
+      <span class="badge">Weight: 10%</span>
+      <span class="badge">Group size: 4 students</span>
+      <span class="badge">Time: 12 minutes</span>
+      <span class="badge">No Selenium or Postman</span>
+    </header>
+
+    <section class="card warn assignment-only">
+      <b>Release Date:</b> 31 March 2026<br/>
+      <b>Due Date:</b> 26 April 2026<br/>
+      <b>VIVA Schedule:</b> Last week of April (During Monday Lecture and Practical slots). Specific timeslots will be posted on Moodle.
+    </section>
+
+    <section class="card assignment-only">
+      <h2>Objective</h2>
+      <p>Select an existing codebase—this can be a web application, a process optimization script, a parallel computing model, or a graphics/visualization project. Implement automated testing on this codebase using <b>two distinct testing tools</b> from <b>two different categories</b>. Deliver a group presentation with individual, feature-specific <b>live code demos</b>.</p>
+    </section>
+
+    <section class="card assignment-only">
+      <h2>Tool & Category Selection</h2>
+      <p>Select <b>two categories</b> from the list below, and choose <b>one tool</b> for each category. <b>Do not use Selenium or Postman.</b></p>
+      <ul>
+        <li><b>Unit/Component Testing:</b> JUnit, PyTest, TestNG, Vitest, Mocha, RSpec</li>
+        <li><b>API/Integration Testing:</b> RestAssured, Karate, Supertest</li>
+        <li><b>E2E / UI Testing:</b> Cypress, Playwright, Robot Framework</li>
+        <li><b>Load/Performance Testing:</b> JMeter, Gatling, K6, Locust</li>
+        <li><b>Behavior-Driven Development:</b> Cucumber, Behave</li>
+      </ul>
+    </section>
+
+    <section class="card assignment-only">
+      <h2>Division of Work (Equal Scope)</h2>
+      <p>To ensure equal contribution, each of the 4 students must take ownership of a <b>distinct feature</b> across the two chosen tools. For example:</p>
+      <ul>
+        <li><b>Tool 1 (e.g., PyTest - Unit Testing):</b>
+          <ul>
+            <li><b>Student 1:</b> Implements and demos <i>Parameterized Testing</i>.</li>
+            <li><b>Student 2:</b> Implements and demos <i>Fixtures and Mocking</i>.</li>
+          </ul>
+        </li>
+        <li><b>Tool 2 (e.g., K6 - Load Testing):</b>
+          <ul>
+            <li><b>Student 3:</b> Implements and demos <i>Spike/Stress Testing configurations</i>.</li>
+            <li><b>Student 4:</b> Implements and demos <i>Data-driven payload testing (e.g., from CSV)</i>.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card assignment-only">
+      <h2>Deliverables & Presentation Format (12 Minutes)</h2>
+      <ol>
+        <li><b>Group Intro (2 mins):</b> Briefly explain the chosen codebase, the two testing categories selected, and why the chosen tools fit the project.</li>
+        <li><b>Individual Demos (8 mins total - 2 mins per student):</b> Each student shows their specific implemented feature in <b>actual working code</b> and runs it live.</li>
+        <li><b>VIVA / Q&A (2 mins):</b> Instructors will ask technical questions directed at individual students regarding their specific code and testing concepts.</li>
+        <li><b>Submission package</b> (Upload to Moodle before your slot):
+          <ul>
+            <li>Slides (max 5) or a 1-page architecture PDF</li>
+            <li>Source code (Project + Tests) with a README outlining who did which feature.</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <div class="rubric-container">
+      <div class="rubric-wrap">
+        <div class="rubric-head">
+          <h2>Rubric — Testing Implementation (100 marks)</h2>
+          <div class="rubric-meta">
+            <span><b>Course:</b> SE3112</span>
+            <span><b>Weight:</b> 10%</span>
+            <span><b>Group Size:</b> 4</span>
+            <span><b>Time:</b> 12 mins</span>
+          </div>
+        </div>
+        <div class="rubric-badges">
+          <span class="rb">80% Individual Grading</span>
+          <span class="rb">Granular Feature Assessment</span>
+          <span class="rb">Live Code Required</span>
+        </div>
+       
+        <div class="rubric">
+          <table>
+            <thead>
+              <tr>
+                <th class="w-crit">Criterion</th>
+                <th class="w-weight">Weight</th>
+                <th class="w-band">Poor (0–39)</th>
+                <th class="w-band">Below Avg (40–54)</th>
+                <th class="w-band">Average (55–69)</th>
+                <th class="w-band">Good (70–84)</th>
+                <th class="w-band">Very Good (85–100)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>1. Context & Tool Selection</b> <i>(Group)</i><br>Justification of the 2 tools and categories chosen for the codebase.</td>
+                <td style="text-align:center;"><b>10%</b></td>
+                <td>Irrelevant codebase; arbitrary tools; no rationale.</td>
+                <td>Minimal context; weak justification; categories unclear.</td>
+                <td>Adequate context; basic rationale linking tools to code.</td>
+                <td>Clear context; good justification tailored to project needs.</td>
+                <td>Professional rationale perfectly pairing distinct categories to demands.</td>
+              </tr>
+              <tr>
+                <td><b>2. Teamwork & Flow</b> <i>(Group)</i><br>Slide quality, transitions, and overall time management.</td>
+                <td style="text-align:center;"><b>10%</b></td>
+                <td>Disorganized; poor slides; terrible time management.</td>
+                <td>Weak structure; jarring transitions; unequal time distribution.</td>
+                <td>Acceptable flow; decent slides; minor timing issues.</td>
+                <td>Smooth transitions; clear visuals; equitable and well-timed.</td>
+                <td>Seamless handover; highly professional visuals; perfectly timed.</td>
+              </tr>
+              <tr>
+                <td><b>3. Code Quality & Standards</b> <i>(Individual)</i><br>Readability, proper assertions, and adherence to best practices.</td>
+                <td style="text-align:center;"><b>15%</b></td>
+                <td>Messy code; lacks assertions; ignores tool standards.</td>
+                <td>Poorly organized; weak assertions; minimal structure.</td>
+                <td>Acceptable code; basic assertions present; functional but messy.</td>
+                <td>Clean, readable code; strong, varied assertions used correctly.</td>
+                <td>Industry-standard code; highly organized; excellent use of tool syntax.</td>
+              </tr>
+              <tr>
+                <td><b>4. Feature Depth & Logic</b> <i>(Individual)</i><br>Complexity of the test; handling of edge cases vs. trivial paths.</td>
+                <td style="text-align:center;"><b>15%</b></td>
+                <td>Irrelevant feature or entirely trivial happy-path test.</td>
+                <td>Simplistic logic; only basic cases covered; underutilizes feature.</td>
+                <td>Moderate complexity; covers standard use cases adequately.</td>
+                <td>Strong logic; covers edge cases; demonstrates feature capabilities.</td>
+                <td>Highly complex scenarios; robust edge-case handling; maximum feature utility.</td>
+              </tr>
+              <tr>
+                <td><b>5. Live Demo Reliability</b> <i>(Individual)</i><br>Successful execution of the code live without breaking.</td>
+                <td style="text-align:center;"><b>15%</b></td>
+                <td>Demo fails completely; code does not run.</td>
+                <td>Major errors or crashes during execution.</td>
+                <td>Runs with minor hiccups or warnings.</td>
+                <td>Smooth execution with no errors.</td>
+                <td>Flawless execution; instantly reliable and fully working.</td>
+              </tr>
+              <tr>
+                <td><b>6. Walkthrough & Clarity</b> <i>(Individual)</i><br>Ability to clearly explain the code and terminal/UI output.</td>
+                <td style="text-align:center;"><b>15%</b></td>
+                <td>Cannot articulate what the code is doing.</td>
+                <td>Confusing explanation; reads off screen blindly.</td>
+                <td>Basic walkthrough; mostly descriptive without insight.</td>
+                <td>Clear, accurate explanation of code and generated outputs.</td>
+                <td>Concise, articulate, and insightful walkthrough of the running logic.</td>
+              </tr>
+              <tr>
+                <td><b>7. VIVA & Concept Mastery</b> <i>(Individual)</i><br>Answering technical questions and defending choices.</td>
+                <td style="text-align:center;"><b>20%</b></td>
+                <td>Cannot answer basic questions about own code.</td>
+                <td>Struggles heavily with probing queries.</td>
+                <td>Answers basic questions but misses deeper mechanics.</td>
+                <td>Confidently defends code and tool functionality.</td>
+                <td>Exceptional mastery; deep understanding of constraints and principles.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="font-size:12px;color:#374151;margin-top:8px">
+          <b>Scoring Note:</b> Criteria 1 and 2 are applied equally to all group members. Criteria 3 through 7 are assessed individually based on the student's specific code, demo, and VIVA performance.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
