@@ -1,10 +1,20 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import EmployeeRouteGuard from '../EmployeeRouteGuard';
 import * as AuthContextModule from '../../../context/AuthContext';
 
 describe('EmployeeRouteGuard', () => {
+  // FIXTURE: runs before every single test — wipes all mock call records
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // FIXTURE: runs after every single test — restores spied functions to their real implementation
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('redirects to login when no user is present', () => {
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({ user: null, loading: false });
 
