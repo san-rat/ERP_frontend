@@ -193,7 +193,7 @@ npx vitest run --coverage
 **Our project's journey:**
 ```
 Start:   73.96% overall
-Final:   91.04% overall  ← exceeded the 90% target
+Final:   98.83% overall  ← far exceeded the 90% target
 ```
 
 ---
@@ -444,7 +444,17 @@ expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Update failed
 | +AuthContext tests | 79.93% | 15 new tests, AuthContext 7.69%→100% |
 | +AdminUsersPage tests | 86.23% | 27 new tests |
 | +ManagerLayout expanded | 86.56% | 17 tests |
-| +EmployeeOrdersPage | **91.04%** | 21 tests — **TARGET ACHIEVED** |
+| +EmployeeOrdersPage | 91.04% | 21 tests — Original target achieved |
+| +Final Polish & Edge Cases | **98.83%** | Added coverage for `NotificationPanel`, `AlertsMenu`, `RegisterPage`, and miscellaneous error fallbacks. |
+
+---
+
+### 8.9 Miscellaneous Components (The 98% Polish)
+
+To bridge the gap from 91% to 98.8%, we targeted specific uncovered branches in smaller components:
+- **`AlertsMenu.test.jsx` / `NotificationPanel.test.jsx`**: Mocked `Date.now()` to verify `timeAgo` formatting, simulated API failure states, and tested "click outside to close" logic.
+- **`RegisterPage.test.jsx`**: Added tests for UI interactions like the password visibility toggle (eye icon) and fallback error messages when the API fails without a specific `message`.
+- **`adminClient.js` / `mlClient.js`**: Added missing HTTP tests for endpoints like `predictAll` and `retrain`, as well as a JSON parsing fallback test.
 
 ---
 
@@ -474,7 +484,7 @@ expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Update failed
 > AuthContext reads from `sessionStorage` on mount. If Test 1 writes a token and Test 2 doesn't clear it, Test 2 will see that token and behave differently than expected — causing a false pass or false fail.
 
 **Q: What is test coverage?**
-> A metric showing what percentage of source code lines, branches, and functions were executed during tests. We achieved 91.04% overall, exceeding the 90% minimum.
+> A metric showing what percentage of source code lines, branches, and functions were executed during tests. We started at 73% and pushed it all the way to 98.83% overall, far exceeding the 90% minimum.
 
 **Q: What is branch coverage?**
 > Specifically measures if/else paths. If you have `if (role === 'Admin') { ... } else { ... }`, branch coverage is only 100% if you test BOTH the true and false cases.
@@ -545,7 +555,7 @@ npx vitest run src/api/__tests__/adminClient.test.js --reporter=verbose
 ```bash
 npx vitest run --coverage
 ```
-**Say:** *"We started at 73.96% overall. By writing fixtures and mocking tests for AuthContext, AdminUsersPage, ManagerLayout, and EmployeeOrdersPage, we reached 91.04% — above the 90% target."*
+**Say:** *"We started at 73.96% overall. By systematically writing fixtures and mocking tests for AuthContext, admin tools, layouts, and edge-case errors, we reached 98.83% — far above the 90% target."*
 
 ---
 

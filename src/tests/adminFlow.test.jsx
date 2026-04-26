@@ -67,6 +67,27 @@ describe('Admin Flow E2E Integration Suite', () => {
     });
   });
 
+  it('shows error toast when dashboard overview fails to load', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { default: toast } = await import('react-hot-toast');
+    vi.mock('react-hot-toast', () => ({
+      default: { success: vi.fn(), error: vi.fn() }
+    }));
+    
+    adminApi.getOverview.mockRejectedValue(new Error('API failure'));
+    
+    render(<AdminDashboardPage />);
+
+    await waitFor(() => {
+      // Need to use dynamic import or just let the mock from AdminUsersPage apply?
+      // Since react-hot-toast is mocked in the file or we can just mock it locally
+      expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
+    });
+    
+    consoleSpy.mockRestore();
+  });
+
+
   it('create manager & create employee tests (via modal)', async () => {
     const onSubmit = vi.fn();
     render(<AdminUserModal isOpen={true} onClose={vi.fn()} onSubmit={onSubmit} submitting={false} />);

@@ -225,3 +225,82 @@ describe('panel visibility', () => {
     await waitFor(() => expect(screen.queryByText('Notifications')).not.toBeInTheDocument());
   });
 });
+
+// ── Missing coverage fixes ────────────────────────────────────────────────────
+
+describe('timeAgo formatting and interactions', () => {
+  beforeEach(() => {
+    useAuth.mockReturnValue({ user: { role: 'MANAGER' } });
+  });
+
+  it('formats dates correctly with timeAgo', async () => {
+    const now = new Date('2026-04-26T12:00:00Z').getTime();
+    vi.spyOn(Date, 'now').mockImplementation(() => now);
+
+    const notifications = [
+      { id: 1, title: 'Just now item', triggeredAt: new Date(now - 30 * 1000).toISOString(), read: false }, // 30 seconds ago
+      { id: 2, title: 'Minutes item', triggeredAt: new Date(now - 45 * 60 * 1000).toISOString(), read: false }, // 45 mins ago
+      { id: 3, title: 'Hours item', triggeredAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(), read: false }, // 5 hours ago
+      { id: 4, title: 'Days item', triggeredAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(), read: false }, // 2 days ago
+    ];
+
+    useNotifications.mockReturnValue({
+      ...defaultNotifications(),
+      notifications,
+    });
+
+    render(<NotificationPanel />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Just now')).toBeInTheDocument();
+      expect(screen.getByText('45m ago')).toBeInTheDocument();
+      expect(screen.getByText('5h ago')).toBeInTheDocument();
+      expect(screen.getByText('2d ago')).toBeInTheDocument();
+    });
+
+    vi.restoreAllMocks();
+  });
+
+  it('resolves a notification when the button is clicked', async () => {
+    const resolveNotificationMock = vi.fn().mockResolvedValue();
+    useNotifications.mockReturnValue({
+      ...defaultNotifications(),
+      notifications: [{ id: 99, title: 'Needs resolve', read: false, triggeredAt: new Date().toISOString() }],
+      resolveNotification: resolveNotificationMock,
+    });
+
+    render(<NotificationPanel />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
+
+    await waitFor(() => expect(screen.getByText('Needs resolve')).toBeInTheDocument());
+
+    const resolveBtn = screen.getByText('Mark as Resolved');
+    fireEvent.click(resolveBtn);
+
+    // After click it should change to Resolving...
+    expect(screen.getByText('Resolving…')).toBeInTheDocument();
+    expect(resolveNotificationMock).toHaveBeenCalledWith(99);
+  });
+
+  it('closes panel when clicking outside', async () => {
+    useNotifications.mockReturnValue(defaultNotifications());
+    
+    render(
+      <div>
+        <div data-testid="outside">Outside Element</div>
+        <NotificationPanel />
+      </div>
+    );
+    
+    // Open panel
+    fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
+    await waitFor(() => expect(screen.getByText('Manager Alerts')).toBeInTheDocument());
+
+    // Click outside
+    fireEvent.mouseDown(screen.getByTestId('outside'));
+
+    await waitFor(() => expect(screen.queryByText('Manager Alerts')).not.toBeInTheDocument());
+  });
+});
+

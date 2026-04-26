@@ -181,6 +181,22 @@ describe('ManagerLayout', () => {
     expect(document.querySelector('.hp-overlay')).not.toBeInTheDocument();
   });
 
+  it('clicking a navigation link closes the sidebar', () => {
+    renderLayout();
+    
+    // Open sidebar
+    fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    const sidebar = document.querySelector('.hp-sidebar');
+    expect(sidebar?.className).toContain('hp-sidebar--open');
+
+    // Click NavLink
+    const navLink = screen.getByRole('link', { name: /Product Insights/i });
+    fireEvent.click(navLink);
+
+    // Sidebar should close
+    expect(sidebar?.className).not.toContain('hp-sidebar--open');
+  });
+
   // ── Logout ──────────────────────────────────────────────────────────────────
 
   it('calls the logout function when the logout button is clicked', () => {

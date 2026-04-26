@@ -55,4 +55,55 @@ describe('EmployeeOverviewPage', () => {
       expect(screen.getByText('No recent orders found.')).toBeInTheDocument();
     });
   });
+
+  it('handles unmount before fetch completes gracefully', () => {
+    let resolveOrders;
+    ordersClient.getAll.mockImplementation(() => new Promise(resolve => { resolveOrders = resolve; }));
+    productsClient.getStock.mockResolvedValue([]);
+
+    const { unmount } = render(
+      <MemoryRouter>
+        <EmployeeOverviewPage />
+      </MemoryRouter>
+    );
+
+    unmount(); // Unmount component before promise resolves
+    resolveOrders([]); // Resolving should not throw or update state on unmounted component
+  });
+
+  it('navigates to orders page with search query when a recent order is clicked', async () => {
+    ordersClient.getAll.mockResolvedValue([
+      { id: 1, externalOrderId: 'ORD-123', status: 'PENDING', totalAmount: 100 }
+    ]);
+    productsClient.getStock.mockResolvedValue([]);
+
+    const { MemoryRouter, Routes, Route, useLocation } = require('react-router-dom');
+    const LocationDisplay = () => {
+      const location = useLocation();
+      return <div data-testid="location-display">{location.pathname}{location.search}</div>;
+    };
+
+    render(
+      <MemoryRouter initialEntries={['/employee']}>
+        <Routes>
+          <Route path="/employee" element={<EmployeeOverviewPage />} />
+          <Route path="*" element={<LocationDisplay />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('ORD-123')).toBeInTheDocument();
+    });
+
+    const { fireEvent } = require('@testing-library/react');
+    
+    // The row text is ORD-123, clicking it triggers onRowClick
+    fireEvent.click(screen.getByText('ORD-123'));
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('location-display')).toHaveTextContent('/employee/orders?q=ORD-123');
+    });
+  });
 });
+

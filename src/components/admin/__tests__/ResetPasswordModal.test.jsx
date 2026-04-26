@@ -118,6 +118,35 @@ describe('success view — generated password display', () => {
     );
     expect(screen.getByText(password)).toBeInTheDocument();
   });
+
+  it('copies password to clipboard and closes on Copy & Close', async () => {
+    const originalClipboard = navigator.clipboard;
+    const writeTextMock = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: writeTextMock },
+      configurable: true,
+    });
+
+    const onClose = vi.fn();
+    render(
+      <ResetPasswordModal
+        isOpen
+        user={{ username: 'u', email: 'u@x.com' }}
+        onClose={onClose}
+        onConfirm={noop}
+        generatedPassword="test-password"
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy & Close' }));
+    expect(writeTextMock).toHaveBeenCalledWith('test-password');
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(navigator, 'clipboard', {
+      value: originalClipboard,
+      configurable: true,
+    });
+  });
 });
 
 // ── Visibility control ────────────────────────────────────────────────────────

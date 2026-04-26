@@ -154,3 +154,67 @@ describe('dropdown heading', () => {
     });
   });
 });
+
+// ── Missing coverage fixes ────────────────────────────────────────────────────
+
+describe('Error Handling and UI interactions', () => {
+  it('shows empty state when API calls fail', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    productsClient.getAlerts.mockRejectedValue(new Error('Network Error'));
+    render(<AlertsMenu />);
+    
+    // The component fetches on mount and when opened if empty
+    fireEvent.click(screen.getByRole('button'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('No active alerts.')).toBeInTheDocument();
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch alerts", expect.any(Error));
+    });
+    
+    consoleSpy.mockRestore();
+  });
+
+  it('shows an alert when resolve fails', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    productsClient.getAlerts.mockResolvedValue(makeAlerts(1));
+    productsClient.resolveAlert.mockRejectedValue(new Error('Failed'));
+    
+    render(<AlertsMenu />);
+    fireEvent.click(screen.getByRole('button'));
+    
+    await waitFor(() => expect(screen.getByText('Product 1')).toBeInTheDocument());
+    
+    const resolveBtn = screen.getByTitle('Mark as Resolved');
+    fireEvent.click(resolveBtn);
+    
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith("Failed to resolve alert.");
+      // The alert should still be in the document since it failed to resolve
+      expect(screen.getByText('Product 1')).toBeInTheDocument();
+    });
+    
+    alertSpy.mockRestore();
+  });
+
+  it('closes dropdown on outside click', async () => {
+    productsClient.getAlerts.mockResolvedValue([]);
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <AlertsMenu />
+      </div>
+    );
+    
+    fireEvent.click(screen.getByRole('button', { name: '' })); // The bell button has no text label but is a button
+    
+    await waitFor(() => expect(screen.getByText('Low Stock Alerts')).toBeInTheDocument());
+    
+    // Click outside
+    fireEvent.mouseDown(screen.getByTestId('outside'));
+    
+    await waitFor(() => {
+      expect(screen.queryByText('Low Stock Alerts')).not.toBeInTheDocument();
+    });
+  });
+});
+

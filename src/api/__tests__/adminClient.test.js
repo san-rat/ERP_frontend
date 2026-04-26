@@ -119,4 +119,18 @@ describe('adminClient', () => {
 
     await expect(adminApi.getOverview()).rejects.toThrow('Forbidden');
   });
+
+  it('falls back to default message when response body is not valid JSON', async () => {
+    // Simulate a 200 OK where json() unexpectedly throws (e.g. empty body)
+    vi.mocked(client.apiFetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => { throw new Error('Unexpected end of JSON'); },
+    });
+
+    // handleResponse catches the json() failure → uses the fallback object
+    // then since ok=true, returns { message: "Failed to parse..." }
+    const result = await adminApi.getOverview();
+    expect(result).toEqual({ message: 'Failed to parse optimal JSON response.' });
+  });
 });

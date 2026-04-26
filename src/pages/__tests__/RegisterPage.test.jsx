@@ -159,4 +159,45 @@ describe('API error handling', () => {
     fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
     expect(await screen.findByText('Email already in use')).toBeInTheDocument();
   });
+
+  it('uses a fallback message if the API returns an error without a message', async () => {
+    authApi.register.mockResolvedValue({ error: true });
+    render(<RegisterPage />);
+    fillForm({});
+    fireEvent.change(screen.getByLabelText(/Role/i), { target: { value: 'Employee' } });
+    fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
+    expect(await screen.findByText('Registration failed.')).toBeInTheDocument();
+  });
+});
+
+// ── UI Interactions ──────────────────────────────────────────────────────────
+
+describe('UI Interactions', () => {
+  it('toggles password visibility when the eye icon is clicked', () => {
+    render(<RegisterPage />);
+    const pwdInput = screen.getByLabelText(/^Password/i);
+    const toggles = screen.getAllByRole('button', { name: /Show/i });
+    
+    // The first one is the password toggle
+    expect(pwdInput).toHaveAttribute('type', 'password');
+    fireEvent.click(toggles[0]);
+    expect(pwdInput).toHaveAttribute('type', 'text');
+    
+    // The button name changes to Hide
+    const hideBtn = screen.getByRole('button', { name: /Hide/i });
+    fireEvent.click(hideBtn);
+    expect(pwdInput).toHaveAttribute('type', 'password');
+  });
+
+  it('toggles confirm password visibility when the eye icon is clicked', () => {
+    render(<RegisterPage />);
+    const confirmInput = screen.getByLabelText(/Confirm password/i);
+    // Initially there are two "Show" buttons
+    const toggles = screen.getAllByRole('button', { name: /Show/i });
+    
+    // The second one is the confirm password toggle
+    expect(confirmInput).toHaveAttribute('type', 'password');
+    fireEvent.click(toggles[1]);
+    expect(confirmInput).toHaveAttribute('type', 'text');
+  });
 });

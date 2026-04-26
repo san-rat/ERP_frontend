@@ -403,4 +403,62 @@ describe('AdminUsersPage', () => {
       );
     });
   });
+
+  // ── Missing Coverage Fixes ───────────────────────────────────────────────────
+
+  it('shows error toast when updateUserStatus fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.mocked(adminApi.getUsers).mockResolvedValue([
+      makeUser({ id: 1, username: 'alice', isActive: true }),
+    ]);
+    vi.mocked(adminApi.updateUserStatus).mockRejectedValue(new Error('Network error'));
+
+    render(<AdminUsersPage />);
+    await waitFor(() => screen.getByText('toggle-alice'));
+    fireEvent.click(screen.getByText('toggle-alice'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Failed to update status');
+    });
+  });
+
+  it('changes page when next/previous buttons are clicked', async () => {
+    vi.mocked(adminApi.getUsers).mockResolvedValue({
+      items: [makeUser({ username: 'alice' })],
+      totalPages: 3,
+    });
+
+    render(<AdminUsersPage />);
+    await waitFor(() => expect(screen.getByText('Page 1 of 3')).toBeInTheDocument());
+
+    const nextBtn = screen.getByText('Next');
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => expect(screen.getByText('Page 2 of 3')).toBeInTheDocument());
+
+    const prevBtn = screen.getByText('Previous');
+    fireEvent.click(prevBtn);
+
+    await waitFor(() => expect(screen.getByText('Page 1 of 3')).toBeInTheDocument());
+  });
+
+  it('closes modals when onClose is called', async () => {
+    render(<AdminUsersPage />);
+    
+    // Open User modal
+    fireEvent.click(screen.getByText('Add New User'));
+    expect(screen.getByTestId('user-modal')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Close Modal')); // The stub has "Close Modal"
+    expect(screen.queryByTestId('user-modal')).not.toBeInTheDocument();
+
+    // Open Reset modal
+    vi.mocked(adminApi.getUsers).mockResolvedValue([makeUser({ username: 'alice' })]);
+    render(<AdminUsersPage />); // Rerender or wait for users
+    await waitFor(() => screen.getAllByText('reset-alice')[0]);
+    fireEvent.click(screen.getAllByText('reset-alice')[0]);
+    expect(screen.getByTestId('reset-modal')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Close Reset')); // The stub has "Close Reset"
+    expect(screen.queryByTestId('reset-modal')).not.toBeInTheDocument();
+  });
 });
+

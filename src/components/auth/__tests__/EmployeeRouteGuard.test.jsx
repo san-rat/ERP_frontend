@@ -65,4 +65,21 @@ describe('EmployeeRouteGuard', () => {
 
     expect(screen.getByText('Employee Content')).toBeInTheDocument();
   });
+
+  it('renders nothing when loading is true', () => {
+    vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({ user: null, loading: true });
+
+    const { container } = render(
+      <MemoryRouter initialEntries={['/employee']}>
+        <Routes>
+          <Route element={<EmployeeRouteGuard />}>
+            <Route path="/employee" element={<div>Employee Content</div>} />
+          </Route>
+          <Route path="/login" element={<div>Login Page</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });
